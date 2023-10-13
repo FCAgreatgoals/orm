@@ -1,0 +1,12 @@
+import { QueryRow, Column, ColumnOption, Table } from '@fca.gg/orm'
+
+@Table('<%= tableId %>')
+export default class <%= tableName %> extends QueryRow {
+
+	@Column.Increment()
+	@ColumnOption.Primary()
+	@ColumnOption.NotNullable()
+	@ColumnOption.Unsigned()
+	private id!: number
+
+}
