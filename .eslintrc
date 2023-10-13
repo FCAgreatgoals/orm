@@ -1,0 +1,22 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
+	"env": {
+		"node": true
+	},
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 13
+	},
+	"rules": {
+		"semi": ["error", "never"],
+		"quotes": ["error", "single"],
+		"@typescript-eslint/no-explicit-any": "off",
+		"@typescript-eslint/ban-ts-comment": "off",
+		"@typescript-eslint/no-inferrable-types": "off",
+		"no-prototype-builtins": "off"
+	}
+}

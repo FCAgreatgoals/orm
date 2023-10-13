@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"importHelpers": true,
+		"module": "CommonJS",
+		"moduleResolution": "NodeNext",
+		"outDir": "lib",
+		"rootDir": "src",
+		"strict": true,
+		"target": "ES2019",
+		"baseUrl": "./src",
+		"paths": {
+			"@lib/*": ["lib/*"],
+			"@utils/*": ["utils/*"],
+		},
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
+	},
+	"include": [
+		"**/*"
+	],
+	"exclude": [
+		"./UserQueryRow.ts"
+	]
+}
