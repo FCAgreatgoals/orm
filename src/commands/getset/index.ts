@@ -7,7 +7,7 @@ export default class GetsetCommand extends Command {
 	static description = 'Generate getter and setter functions for a queryrow class'
 
 	static examples = [
-		'$ orm gen getset',
+		'$ orm getset',
 	];
 
 	static args = {}

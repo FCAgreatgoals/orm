@@ -4,7 +4,7 @@ import { getInstalledPath } from 'get-installed-path'
 
 export async function renderTemplate(template: string, data: Record<string, any>): Promise<string> {
 
-	const packagePath = await getInstalledPath('orm-cli')
+	const packagePath = await getInstalledPath('@fca.gg/orm', { local: true })
 
 	const templateContent = await readFile(`${packagePath}/lib/templates/${template}`, 'utf-8')
 
