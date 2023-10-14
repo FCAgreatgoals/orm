@@ -18,19 +18,23 @@ export default class Transform {
         }
     }
 
+	private static parametersToOptions(fnOrPropertyKey: string | ((val: any) => any), fn?: (val: any) => any): TransformDecoratorOptions {
+		const isFunction = typeof fnOrPropertyKey === 'function'
+		return {
+			propertyKey: isFunction ? undefined : fnOrPropertyKey as string,
+			fn: isFunction ? fnOrPropertyKey as (val: any) => any : fn as (val: any) => any
+		}
+	}
+
     public static Hydrate(fn: (val: any) => any): any
     public static Hydrate(propertyKey: string, fn: (val: any) => any): any
     public static Hydrate(fnOrPropertyKey: string | ((val: any) => any), fn?: (val: any) => any): any {
-        const isFunction = typeof fnOrPropertyKey === 'function'
-        const options: TransformDecoratorOptions = {
-            propertyKey: isFunction ? undefined : fnOrPropertyKey as string,
-            fn: isFunction ? fnOrPropertyKey as (val: any) => any : fn as (val: any) => any
-        }
-
-        return Transform.createDecorator('hydrate', options)
+		return Transform.createDecorator('hydrate', Transform.parametersToOptions(fnOrPropertyKey, fn))
     }
 
-    public static DeHydrate(fn: (val: any) => any): any {
-        return Transform.createDecorator('dehydrate', { fn })
+	public static DeHydrate(fn: (val: any) => any): any
+	public static DeHydrate(propertyKey: string, fn: (val: any) => any): any
+    public static DeHydrate(fnOrPropertyKey: string | ((val: any) => any), fn?: (val: any) => any): any {
+		return Transform.createDecorator('dehydrate', Transform.parametersToOptions(fnOrPropertyKey, fn))
     }
 }

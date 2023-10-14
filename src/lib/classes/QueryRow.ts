@@ -3,7 +3,7 @@ import Logger from '@lib/classes/Logger'
 import { Join } from '@lib/decorators/Join'
 import { TableData } from '@lib/decorators/Table'
 import KnexInstance from '@lib/classes/KnexInstance'
-import { WhereObject } from '@lib/types/QueryRow'
+import { WhereObject, FindAllOptions, OrderBy } from '../types/QueryRow'
 
 export default class QueryRow {
 
@@ -35,38 +35,57 @@ export default class QueryRow {
         })
     }
 
+	protected static buildOrderBy(knex: Knex.QueryBuilder, orderBy: OrderBy): Knex.QueryBuilder {
+		return knex.orderBy(Object.entries(orderBy).map(([column, data]) => ({
+			column,
+			order: Array.isArray(data) ? data[0] : data,
+			...(Array.isArray(data) ? { nulls: data[1] } : {})
+		})))
+	}
+
     public static findOneBy<T extends typeof QueryRow>(this: T, whereObject: WhereObject): Promise<InstanceType<T> | void> {
-		return this.findAllBy(whereObject, 1) as Promise<InstanceType<T> | void>
+		return this.findAllBy(whereObject, { limit: 1 }) as Promise<InstanceType<T> | void>
 	}
 
     public static findOneById<T extends typeof QueryRow>(this: T, id: number): Promise<InstanceType<T> | void> {
         return this.findOneBy({ id })
     }
 
-    public static findAllBy<T extends typeof QueryRow>(this: T, whereObject: WhereObject, limit?: number): Promise<Array<InstanceType<T>> | void> {
+    public static findAllBy<T extends typeof QueryRow>(this: T, whereObject: WhereObject, options?: FindAllOptions): Promise<Array<InstanceType<T>> | void> {
         const data: Required<TableData> = Reflect.getMetadata('table:data', this)
-        const request = KnexInstance.get()(data.name)
-            .select('*')
+        let request = KnexInstance.get()(data.name).select('*')
 
-		if (limit) request.limit(limit)
+		if (options) {
+			if (options.limit) request.limit(options.limit)
+			if (options.offset) request.offset(options.offset)
+			if (options.orderBy) request = this.buildOrderBy(request, options.orderBy)
+		}
 
         return this.buildJoin(this.buildWhere(request, whereObject))
-            .then((data: Array<any>) => this.hydrate(data, limit === undefined || limit > 1))
-            .catch(QueryRow.getLogger(data.name).catch('ESQL-FAB'))
+            .then((data: Array<any>) => this.hydrate(data, options?.limit === undefined || options.limit > 1))
+            .catch(QueryRow.getLogger(data.name).catch('ESQL-F'))
     }
 
-    public static search<T extends typeof QueryRow>(this: T, whereObject: WhereObject, limit?: number): Promise<Array<InstanceType<T>> | void> {
-        return this.findAllBy(whereObject, limit)
+    public static search<T extends typeof QueryRow>(this: T, whereObject: WhereObject, options?: FindAllOptions): Promise<Array<InstanceType<T>> | void> {
+        return this.findAllBy(whereObject, options)
     }
 
-    public static findAll<T extends typeof QueryRow>(this: T): Promise<Array<InstanceType<T>> | void> {
-        const data: Required<TableData> = Reflect.getMetadata('table:data', this)
-        const request = KnexInstance.get()(data.name).select('*')
-
-        return this.buildJoin(request)
-            .then((data: Array<any>) => this.hydrate(data, true))
-            .catch(QueryRow.getLogger(data.name).catch('ESQL-FA'))
+    public static findAll<T extends typeof QueryRow>(this: T, options?: FindAllOptions): Promise<Array<InstanceType<T>> | void> {
+        return this.findAllBy({}, options)
     }
+
+	public static countBy<T extends typeof QueryRow>(this: T, whereObject: WhereObject): Promise<number | void> {
+		const data: Required<TableData> = Reflect.getMetadata('table:data', this)
+		const request = KnexInstance.get()(data.name).count('*')
+
+		return this.buildWhere(request, whereObject)
+			.then((count: number) => count)
+			.catch(QueryRow.getLogger(data.name).catch('ESQL-C'))
+	}
+
+	public static count<T extends typeof QueryRow>(this: T): Promise<number | void> {
+		return this.countBy({})
+	}
 
     public static new<T extends QueryRow>(this: new () => T): T {
         return new this()
@@ -119,7 +138,7 @@ export default class QueryRow {
             .catch(QueryRow.getLogger(data.name).catch('ESQL-D'))
     }
 
-    public hydrate(hydrateData: Record<string, any>): this {
+    private hydrate(hydrateData: Record<string, any>): this {
         const { name, joins, hydrate }: Required<TableData> = Reflect.getMetadata('table:data', this.constructor)
         Object.keys(joins.length > 0 ? hydrateData[name] : hydrateData).forEach(key => {
             const hydrateOptions = hydrate ? hydrate[key] : undefined
@@ -143,7 +162,7 @@ export default class QueryRow {
 
         return Object.keys(columns).reduce((obj: any, column: string) => {
             const dehydrateOptions = dehydrate ? dehydrate[column] : undefined
-            obj[column] = dehydrateOptions ? dehydrateOptions.fn((this as any)[column]) : (this as any)[column]
+            obj[column] = dehydrateOptions ? dehydrateOptions.fn((this as any)[dehydrateOptions.propertyKey || column]) : (this as any)[column]
             return obj
         }, {})
     }
