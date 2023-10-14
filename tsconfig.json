@@ -18,8 +18,5 @@
 	},
 	"include": [
 		"**/*"
-	],
-	"exclude": [
-		"./UserQueryRow.ts"
 	]
 }
