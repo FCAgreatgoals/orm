@@ -52,17 +52,13 @@ function getChangeType(diff: TableDiff): Array<ChangeType> {
 		}
 	}
 
-	changes.filter((value, index, self) => self.indexOf(value) === index)
+	return changes.filter((value, index, self) => self.indexOf(value) === index)
 
-	return changes
 }
 
 export async function writeMigrationFiles(builder: KnexMigrationBuilder): Promise<void> {
 	const migrations: Array<KnexMigration> = builder.getMigrations()
 	let delay: number = 0
-
-	// TODO: create dir if not exists
-	// TODO: use knexConfig to get migrations dir
 
 	const knexConfig: KnexProfile = await fetchKnexConfig().catch((err: Error) => { throw err })
 	const outdir: string = knexConfig.migrations.directory || './migrations'
@@ -80,4 +76,5 @@ export async function writeMigrationFiles(builder: KnexMigrationBuilder): Promis
 		await writeFile(`${outdir}/${fileName}`, migration.content)
 		delay++
 	}
+
 }

@@ -1,4 +1,5 @@
 import { Command, Flags } from '@oclif/core'
+import { toFileNameString } from '@utils/files/createNewClass'
 import rewriteQueryRowClass from '@utils/files/rewriteQueryRowClass'
 import { searchProject } from '@utils/files/searchProject'
 
@@ -14,7 +15,7 @@ export default class GetsetCommand extends Command {
 
 	static flags = {
 		project: Flags.directory({ char: 'p', description: 'Project directory', required: false, default: process.cwd()+ '/src' }),
-		file: Flags.string({ char: 'f', description: 'File to add functions to', required: false }),
+		table: Flags.string({ char: 't', description: 'QueryRow table to add functions to', required: false }),
 	}
 
 	public modifiedFilesNumber: number = 0
@@ -22,17 +23,15 @@ export default class GetsetCommand extends Command {
 	async run(): Promise<void> {
 		const { flags } = await this.parse(GetsetCommand)
 
-		if (!flags.file) {
+		if (!flags.table) {
 			const queryrows: Array<string> = await searchProject(flags.project)
 			for (const file of queryrows) {
 				await rewriteQueryRowClass(file, this)
 			}
-		} else await rewriteQueryRowClass(`${flags.project}/${flags.file}${(flags.file.includes('.ts')) ? '' : '.ts'}`, this)
+		} else await rewriteQueryRowClass(`${flags.project}/${toFileNameString(flags.table)}${(flags.file.includes('.ts')) ? '' : '.ts'}`, this)
 
-		if (this.modifiedFilesNumber === 0)
-			this.log('No queryrow classes changed')
-		else
-			this.log(`Modified ${this.modifiedFilesNumber} queryrow classes`)
+		if (this.modifiedFilesNumber === 0) this.log('No queryrow classes changed')
+		else this.log(`Modified ${this.modifiedFilesNumber} queryrow classes`)
 
 	}
 }
