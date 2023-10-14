@@ -14,7 +14,7 @@ export default class Table extends Command {
 	}
 
 	static flags = {
-		dir: Flags.string({ char: 'd', description: 'Directory to create the new table inside', required: false, default: `${process.cwd()}/src` }),
+		project: Flags.string({ char: 'p', description: 'Directory to create the new table inside', required: false, default: `${process.cwd()}/src` }),
 	}
 
 	async run(): Promise<void> {

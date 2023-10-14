@@ -1,6 +1,6 @@
 {
 	"name": "@fca.gg/orm",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "ORM Library for Node.js",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
@@ -21,8 +21,7 @@
 		"mysql": "^2.18.1",
 		"pg": "^8.11.3",
 		"prompts": "^2.4.2",
-		"reflect-metadata": "^0.1.13",
-		"time-stamp": "^2.2.0"
+		"reflect-metadata": "^0.1.13"
 	},
 	"devDependencies": {
 		"@types/chai": "^4",
