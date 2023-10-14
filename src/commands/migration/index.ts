@@ -25,7 +25,7 @@ export default class Generate extends Command {
 	static args = {}
 
 	static flags = {
-		project: Flags.directory({ char: 'p', description: 'Project directory', required: false, default: process.cwd()+ '/src' }),
+		project: Flags.directory({ char: 'p', description: 'Project directory', required: false, default: `${process.cwd()}/src` }),
 		runMigration: Flags.boolean({ aliases: ['rm'], description: 'Automatically run the migration files without prompting' }),
 		authorizeDeletion: Flags.boolean({ aliases: ['ad'], description: 'Automatically authorize deletion of tables without prompting' }),
 		table: Flags.string({ char: 't', description: 'Generate a migration for a specific queryrow', required: false }),
