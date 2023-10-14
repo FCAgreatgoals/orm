@@ -25,9 +25,7 @@ export default class Generate extends Command {
 	static args = {}
 
 	static flags = {
-		out: Flags.directory({ char: 'o', description: 'Directory to generate the migration in', required: false }),
 		project: Flags.directory({ char: 'p', description: 'Project directory', required: false, default: process.cwd()+ '/src' }),
-		env: Flags.string({ char: 'e', description: 'Node environment to use for knex', required: false, default: 'development' }),
 		runMigration: Flags.boolean({ aliases: ['rm'], description: 'Automatically run the migration files without prompting' }),
 		authorizeDeletion: Flags.boolean({ aliases: ['ad'], description: 'Automatically authorize deletion of tables without prompting' }),
 		table: Flags.string({ char: 't', description: 'Generate a migration for a specific queryrow', required: false }),
@@ -48,7 +46,7 @@ export default class Generate extends Command {
 
 		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this)
 			.catch((err: Error) => this.error(err.message))
-		const oldSchema: { schema: DatabaseSchema, isMySQL: boolean } = await databaseConnectionHandle(flags, this)
+		const oldSchema: { schema: DatabaseSchema, isMySQL: boolean } = await databaseConnectionHandle(this)
 			.catch((err: Error) => this.error(err.message))
 
 		if (flags.table) {
@@ -76,7 +74,7 @@ export default class Generate extends Command {
 		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
 
 		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema)
-		await writeMigrationFiles(builder, flags.out)
+		await writeMigrationFiles(builder)
 			.catch((err: Error) => this.error(err.message))
 
 		if (diff.length === 0) {

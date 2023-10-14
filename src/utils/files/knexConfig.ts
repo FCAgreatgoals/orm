@@ -1,7 +1,6 @@
 import { Command } from '@oclif/core'
 
-export type KnexConfig = Record<string, KnexProfile>
-type KnexProfile = {
+export type KnexProfile = {
 	client: string,
 	connection: {
 		host: string,
@@ -19,7 +18,7 @@ type KnexProfile = {
 	},
 }
 
-export async function fetchKnexConfig(ctx?: Command): Promise<KnexConfig> {
+export async function fetchKnexConfig(ctx?: Command): Promise<KnexProfile> {
 
 	const knexConfig: any = await import(`${process.cwd()}/knexfile.js`)
 		.catch((err) => {
@@ -28,5 +27,5 @@ export async function fetchKnexConfig(ctx?: Command): Promise<KnexConfig> {
 			else throw err
 		})
 
-	return knexConfig.default as KnexConfig
+	return knexConfig.default as KnexProfile
 }

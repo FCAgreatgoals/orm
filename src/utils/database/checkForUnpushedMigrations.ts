@@ -1,13 +1,13 @@
 import { Command } from '@oclif/core'
-import { KnexConfig, fetchKnexConfig } from '@utils/files/knexConfig'
+import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
 import { Warning } from '@utils/strings/colors'
 import { readdir, rm } from 'fs/promises'
 import knex, { Knex } from 'knex'
 
 export default async function checkForUnpushedMigrations(ctx: Command, env: string, outdir = './migrations', table?: string): Promise<void> {
-	const knexConfig: KnexConfig = await fetchKnexConfig(ctx)
+	const knexConfig: KnexProfile = await fetchKnexConfig(ctx)
 		.catch((err: Error) => { throw err })
-	const knexInstance: Knex = knex(knexConfig[env])
+	const knexInstance: Knex = knex(knexConfig)
 
 	const migrations: Array<any> = await knexInstance.migrate.list()
 		.catch((err: Error) => { throw err })

@@ -1,4 +1,4 @@
-import { KnexConfig, fetchKnexConfig } from '@utils/files/knexConfig'
+import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
 import knex, { Knex } from 'knex'
 
 export default class KnexInstance {
@@ -22,10 +22,10 @@ export default class KnexInstance {
 	}
 
 	private static async spawnKnex(): Promise<void> {
-		const knexConfig: KnexConfig = await fetchKnexConfig()
+		const knexConfig: KnexProfile = await fetchKnexConfig()
 			.catch((err: Error) => { throw err })
 
-		this.knex = knex(knexConfig[process.env.NODE_ENV || 'development'])
+		this.knex = knex(knexConfig)
 	}
 
 }

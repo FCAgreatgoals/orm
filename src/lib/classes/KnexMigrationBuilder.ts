@@ -68,7 +68,7 @@ export default class KnexMigrationBuilder {
 	}
 
 	private generateColumnInitializer(column: ColumnData): string {
-		let string: string = `${(column.has_auto_increment) ? 'increments' : column.data_type}("${column.name}"`
+		let string: string = `${(column.has_auto_increment) ? 'increments' : column.data_type}('${column.name}'`
 
 		if (['string', 'integer', 'tinyint', 'binary'].includes(column.data_type as never) && column.max_length && !(column.data_type === 'string' && column.max_length === 255)) {
 			string += `, ${column.max_length}`
@@ -79,7 +79,7 @@ export default class KnexMigrationBuilder {
 		} else if (['datetime', 'timestamp'].includes(column.data_type as never) && column.useTz) {
 			string += ', { useTz: true }'
 		} else if (column.data_type === 'enum' && column.enum_values) {
-			string += `, ["${column.enum_values.join('", "')}"], { useNative: true, enumName: "${column.table}_${column.name}" }`
+			string += `, ['${column.enum_values.join('\', \'')}'], { useNative: true, enumName: '${column.table}_${column.name}' }`
 		} else if (column.data_type === 'uuid' && column.binaryUuid) {
 			string += ', { binaryUuid: true }'
 		}
@@ -103,35 +103,35 @@ export default class KnexMigrationBuilder {
 			lines.push('.unique()')
 		if (data.default_value !== null) {
 			const defaultValueLine: string = data.default_value.constructor === String
-				? `.defaultTo("${data.default_value}")`
+				? `.defaultTo('${data.default_value}')`
 				: `.defaultTo(${data.default_value})`
 
 			lines.push(defaultValueLine)
 		}
 		if (data.foreign_key_table && data.foreign_key_column)
-			lines.push(`.references("${data.foreign_key_column}").inTable("${data.foreign_key_table}")`)
+			lines.push(`.references('${data.foreign_key_column}').inTable('${data.foreign_key_table}')`)
 		if (data.onUpdate)
-			lines.push(`.onUpdate("${data.onUpdate}")`)
+			lines.push(`.onUpdate('${data.onUpdate}')`)
 		if (data.onDelete)
-			lines.push(`.onDelete("${data.onDelete}")`)
+			lines.push(`.onDelete('${data.onDelete}')`)
 		if (data.constraintDeferred)
 			lines.push('.deferrable()')
 		if (data.checkIn)
-			lines.push(`.checkIn([${data.checkIn.map(value => `"${value}"`).join(', ')}]${(data.checkInCustom) ? `, "${data.checkInCustom}"` : ''})`)
+			lines.push(`.checkIn([${data.checkIn.map(value => `'${value}'`).join(', ')}]${(data.checkInCustom) ? `, '${data.checkInCustom}'` : ''})`)
 		if (data.checkNotIn)
-			lines.push(`.checkNotIn([${data.checkNotIn.map(value => `"${value}"`).join(', ')}]${(data.checkNotInCustom) ? `, "${data.checkNotInCustom}"` : ''})`)
+			lines.push(`.checkNotIn([${data.checkNotIn.map(value => `'${value}'`).join(', ')}]${(data.checkNotInCustom) ? `, '${data.checkNotInCustom}'` : ''})`)
 		if (data.checkBetween)
-			lines.push(`.checkBetween([${data.checkBetween.map(value => `"${value}"`).join(', ')}]${(data.checkBetweenCustom) ? `, "${data.checkBetweenCustom}"` : ''})`)
+			lines.push(`.checkBetween([${data.checkBetween.map(value => `'${value}'`).join(', ')}]${(data.checkBetweenCustom) ? `, '${data.checkBetweenCustom}'` : ''})`)
 		if (data.checkRegexp)
-			lines.push(`.checkRegex("${data.checkRegexp.replace(/\\/g, '\\\\')}"${(data.checkRegexpCustom) ? `, "${data.checkRegexpCustom}"` : ''})`)
+			lines.push(`.checkRegex('${data.checkRegexp.replace(/\\/g, '\\\\')}'${(data.checkRegexpCustom) ? `, '${data.checkRegexpCustom}'` : ''})`)
 		if (data.checkNumeral)
-			lines.push(`.checkLength("${data.checkNumeral.split(' ')[0]}", ${parseInt(data.checkNumeral.split(' ')[1])}${(data.checkNumeralCustom) ? `, "${data.checkNumeralCustom}"` : ''})`)
+			lines.push(`.checkLength('${data.checkNumeral.split(' ')[0]}', ${parseInt(data.checkNumeral.split(' ')[1])}${(data.checkNumeralCustom) ? `, '${data.checkNumeralCustom}'` : ''})`)
 		if (data.checkPositive)
 			lines.push('.checkPositive()')
 		if (data.checkNegative)
 			lines.push('.checkNegative()')
 		if (data.comment)
-			lines.push(`.comment("${data.comment}")`)
+			lines.push(`.comment('${data.comment}')`)
 		if (column.name?.type !== 'added')
 			lines.push('.alter()')
 
@@ -140,7 +140,7 @@ export default class KnexMigrationBuilder {
 
 	private generateReverseColumnInstructions(column: DiffResult, data: ColumnData, isTableDeleted: boolean): string {
 		if (column.name?.type === 'added')
-			return `\t\ttable.dropColumn("${column.name?.newValue}")`
+			return `\t\ttable.dropColumn('${column.name?.newValue}')`
 		const lines: Array<string> = ['\t\ttable.']
 		lines.push(this.generateColumnInitializer(data))
 		if (data.is_unsigned)
@@ -151,7 +151,7 @@ export default class KnexMigrationBuilder {
 			lines.push('.notNullable()')
 		if (data.default_value !== null) {
 			const defaultValueLine = data.default_value.constructor === String
-				? `.defaultTo("${data.default_value}")`
+				? `.defaultTo('${data.default_value}')`
 				: `.defaultTo(${data.default_value})`
 
 			lines.push(defaultValueLine)
@@ -161,31 +161,31 @@ export default class KnexMigrationBuilder {
 		if (data.is_unique)
 			lines.push('.unique()')
 		if (data.default_value)
-			lines.push(`.defaultTo("${data.default_value}")`)
+			lines.push(`.defaultTo('${data.default_value}')`)
 		if (data.foreign_key_table && data.foreign_key_column)
-			lines.push(`.references("${data.foreign_key_column}").inTable("${data.foreign_key_table}")`)
+			lines.push(`.references('${data.foreign_key_column}').inTable('${data.foreign_key_table}')`)
 		if (data.onUpdate)
-			lines.push(`.onUpdate("${data.onUpdate}")`)
+			lines.push(`.onUpdate('${data.onUpdate}')`)
 		if (data.onDelete)
-			lines.push(`.onDelete("${data.onDelete}")`)
+			lines.push(`.onDelete('${data.onDelete}')`)
 		if (data.constraintDeferred)
 			lines.push('.deferrable()')
 		if (data.checkIn)
-			lines.push(`.checkIn([${data.checkIn.map(value => `"${value}"`).join(', ')}]${(data.checkInCustom) ? `, "${data.checkInCustom}"` : ''})`)
+			lines.push(`.checkIn([${data.checkIn.map(value => `'${value}'`).join(', ')}]${(data.checkInCustom) ? `, '${data.checkInCustom}'` : ''})`)
 		if (data.checkNotIn)
-			lines.push(`.checkNotIn([${data.checkNotIn.map(value => `"${value}"`).join(', ')}]${(data.checkNotInCustom) ? `, "${data.checkNotInCustom}"` : ''})`)
+			lines.push(`.checkNotIn([${data.checkNotIn.map(value => `'${value}'`).join(', ')}]${(data.checkNotInCustom) ? `, '${data.checkNotInCustom}'` : ''})`)
 		if (data.checkBetween)
-			lines.push(`.checkBetween([${data.checkBetween.map(value => `"${value}"`).join(', ')}]${(data.checkBetweenCustom) ? `, "${data.checkBetweenCustom}"` : ''})`)
+			lines.push(`.checkBetween([${data.checkBetween.map(value => `'${value}'`).join(', ')}]${(data.checkBetweenCustom) ? `, '${data.checkBetweenCustom}'` : ''})`)
 		if (data.checkRegexp)
-			lines.push(`.checkRegex("${data.checkRegexp.replace(/\\/g, '\\\\')}"${(data.checkRegexpCustom) ? `, "${data.checkRegexpCustom}"` : ''})`)
+			lines.push(`.checkRegex('${data.checkRegexp.replace(/\\/g, '\\\\')}'${(data.checkRegexpCustom) ? `, '${data.checkRegexpCustom}'` : ''})`)
 		if (data.checkNumeral)
-			lines.push(`.checkLength("${data.checkNumeral.split(' ')[0]}", ${parseInt(data.checkNumeral.split(' ')[1])}${(data.checkNumeralCustom) ? `, "${data.checkNumeralCustom}"` : ''})`)
+			lines.push(`.checkLength('${data.checkNumeral.split(' ')[0]}', ${parseInt(data.checkNumeral.split(' ')[1])}${(data.checkNumeralCustom) ? `, '${data.checkNumeralCustom}'` : ''})`)
 		if (data.checkPositive)
 			lines.push('.checkPositive()')
 		if (data.checkNegative)
 			lines.push('.checkNegative()')
 		if (data.comment)
-			lines.push(`.comment("${data.comment}")`)
+			lines.push(`.comment('${data.comment}')`)
 		if (!isTableDeleted)
 			lines.push('.alter()')
 		return lines.join('')
@@ -212,7 +212,7 @@ export default class KnexMigrationBuilder {
 		for (const column of table?.deletedColumns) {
 			const columnData: ColumnData | undefined = this.oldSchema.find(table => table.name === tableName)?.columns.find(columnData => columnData.name === column)
 			if (columnData !== undefined)
-				lines.push(`\t\ttable.dropColumn("${columnData.name}")`)
+				lines.push(`\t\ttable.dropColumn('${columnData.name}')`)
 
 		}
 
@@ -226,7 +226,7 @@ export default class KnexMigrationBuilder {
 		lines.push(defaultLines.EXPORT_DOWN)
 
 		if (table?.type == 'added')
-			lines.push(`\tknex.schema.dropTableIfExists("${tableName}")`)
+			lines.push(`\tknex.schema.dropTableIfExists('${tableName}')`)
 		else {
 			lines.push((table?.type === 'deleted') ? defaultLines.CREATE_TABLE : defaultLines.UPDATE_TABLE)
 			for (const column in table?.columns) {
@@ -247,7 +247,7 @@ export default class KnexMigrationBuilder {
 	}
 
 	public build(tableName: string): string {
-		const lines: Array<string> = [`const tableName = "${tableName}"\n`, defaultLines.EXPORT_UP]
+		const lines: Array<string> = [`const tableName = '${tableName}'\n`, defaultLines.EXPORT_UP]
 		const table = this.diff.find(table => table.name === tableName) as TableDiff
 		if (table?.columns === undefined)
 			return ''

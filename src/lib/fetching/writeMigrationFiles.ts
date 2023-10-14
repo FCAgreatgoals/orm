@@ -1,7 +1,9 @@
-import { writeFile } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import KnexMigrationBuilder, { KnexMigration } from '@lib/classes/KnexMigrationBuilder'
 import { TableDiff } from '@lib/types/Table'
 import { Diff } from '@lib/types/DiffResult'
+import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
+import { existsSync } from 'fs'
 
 function dateToString(delayInSeconds: number): string {
 	const date: Date = new Date()
@@ -55,9 +57,18 @@ function getChangeType(diff: TableDiff): Array<ChangeType> {
 	return changes
 }
 
-export async function writeMigrationFiles(builder: KnexMigrationBuilder, outdir: string = './migrations'): Promise<void> {
+export async function writeMigrationFiles(builder: KnexMigrationBuilder): Promise<void> {
 	const migrations: Array<KnexMigration> = builder.getMigrations()
 	let delay: number = 0
+
+	// TODO: create dir if not exists
+	// TODO: use knexConfig to get migrations dir
+
+	const knexConfig: KnexProfile = await fetchKnexConfig().catch((err: Error) => { throw err })
+	const outdir: string = knexConfig.migrations.directory || './migrations'
+
+	if (!existsSync(outdir))
+		await mkdir(outdir)
 
 	for (const migration of migrations) {
 		if (!migration.content || migration.content.length === 0)
