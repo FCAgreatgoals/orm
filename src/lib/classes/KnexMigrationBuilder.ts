@@ -102,11 +102,13 @@ export default class KnexMigrationBuilder {
 		if (data.is_unique)
 			lines.push('.unique()')
 		if (data.default_value !== null) {
-			const defaultValueLine: string = data.default_value.constructor === String
+			const defaultValueLine = data.default_value.constructor === String
 				? `.defaultTo('${data.default_value}')`
 				: `.defaultTo(${data.default_value})`
 
-			lines.push(defaultValueLine)
+			if (['timestamp', 'datetime', 'date'].includes(data.data_type as never) && data.default_value === 'NOW')
+				lines.push((data.data_type === 'date') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
+			else lines.push(defaultValueLine)
 		}
 		if (data.foreign_key_table && data.foreign_key_column)
 			lines.push(`.references('${data.foreign_key_column}').inTable('${data.foreign_key_table}')`)
@@ -154,14 +156,14 @@ export default class KnexMigrationBuilder {
 				? `.defaultTo('${data.default_value}')`
 				: `.defaultTo(${data.default_value})`
 
-			lines.push(defaultValueLine)
+			if (['timestamp', 'datetime', 'date'].includes(data.data_type as never) && data.default_value === 'NOW')
+				lines.push((data.data_type === 'date') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
+			else lines.push(defaultValueLine)
 		}
 		if (data.is_primary_key)
 			lines.push('.primary()')
 		if (data.is_unique)
 			lines.push('.unique()')
-		if (data.default_value)
-			lines.push(`.defaultTo('${data.default_value}')`)
 		if (data.foreign_key_table && data.foreign_key_column)
 			lines.push(`.references('${data.foreign_key_column}').inTable('${data.foreign_key_table}')`)
 		if (data.onUpdate)
