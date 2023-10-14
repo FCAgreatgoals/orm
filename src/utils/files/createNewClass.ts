@@ -11,7 +11,7 @@ export interface ICreateNewClassParams {
 		name: string,
 	},
 	flags: {
-		dir: string,
+		project: string,
 	}
 }
 
@@ -42,7 +42,7 @@ export default async function createNewClass(params: ICreateNewClassParams, type
 	await writeFile({
 		name: tableName,
 		data: string,
-		path: params.flags.dir
+		path: params.flags.project
 	}, ctx)
 
 	ctx.log(`QueryRow ${blue(params.args.name)} created successfully`)

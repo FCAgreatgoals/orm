@@ -1,5 +1,9 @@
-import timestamp from 'time-stamp'
 import * as chalk from 'chalk'
+
+function timestamp(): string {
+	const date = new Date()
+	return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+}
 
 export default class Logger {
 
@@ -28,13 +32,13 @@ export default class Logger {
         const level = this.levels[type]
         entries.forEach(entry => {
             if (type === 'error') {
-                console.error(color(`${timestamp('[DD/MM/YYYY HH:mm:ss')} - ${this.title} - ${level}]:`))
+                console.error(color(`[${timestamp()} - ${this.title} - ${level}]:`))
                 console.error(entry)
                 return
             }
 
             console.log(
-                color(`${timestamp('[DD/MM/YYYY HH:mm:ss')} - ${this.title} - ${level}]:`),
+                color(`[${timestamp()} - ${this.title} - ${level}]:`),
                 entry
             )
         })

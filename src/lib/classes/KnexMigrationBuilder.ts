@@ -228,7 +228,7 @@ export default class KnexMigrationBuilder {
 		lines.push(defaultLines.EXPORT_DOWN)
 
 		if (table?.type == 'added')
-			lines.push(`\tknex.schema.dropTableIfExists('${tableName}')`)
+			lines.push(defaultLines.DELETE_TABLE)
 		else {
 			lines.push((table?.type === 'deleted') ? defaultLines.CREATE_TABLE : defaultLines.UPDATE_TABLE)
 			for (const column in table?.columns) {
