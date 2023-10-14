@@ -19,7 +19,7 @@ export default class Generate extends Command {
 	static description = 'Create a new table'
 
 	static examples = [
-		'$ orm gen migration',
+		'$ orm migration',
 	]
 
 	static args = {}

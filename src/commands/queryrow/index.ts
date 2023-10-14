@@ -6,7 +6,7 @@ export default class Table extends Command {
 	static description = 'Create a new table'
 
 	static examples = [
-		'$ orm gen queryrow',
+		'$ orm queryrow',
 	];
 
 	static args = {
