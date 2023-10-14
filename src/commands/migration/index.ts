@@ -40,8 +40,10 @@ export default class Generate extends Command {
 		if (process.env.ORM_AUTO_BUILD !== 'false') {
 			this.log('Building TS files...')
 			const result = await exec(process.env.ORM_CMD_BUILD || 'tsc')
-			if (result.stderr) this.error(result.stderr)
-			if (result.stdout) this.log(result.stdout)
+			if (result.stderr) {
+				this.log(result.stdout)
+				this.error(result.stderr)
+			}
 		}
 
 		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this)
@@ -96,7 +98,7 @@ export default class Generate extends Command {
 				return
 		}
 
-		const result = await exec(`NODE_ENV=${flags.env} npx knex migrate:latest`)
+		const result = await exec('npx knex migrate:latest')
 		if (result.stderr) this.error(result.stderr)
 
 	}
