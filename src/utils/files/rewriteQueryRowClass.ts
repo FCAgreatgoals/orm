@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'fs/promises'
 import { toFileNameString } from '@utils/files/createNewClass'
 import { renderTemplate } from '@utils/files/renderTemplate'
 import { blue } from '@utils/strings/colors'
-import GetsetCommand from 'commands/getset'
+import AccessorCommand from '../../commands/accessor'
 
 type QueryRowColumn = {
 	columnName: string,
@@ -94,7 +94,7 @@ async function addFunctions(content: Array<string>, column: QueryRowColumn): Pro
 	return newContent
 }
 
-export default async function rewriteQueryRowClass(file: string, ctx: GetsetCommand): Promise<void> {
+export default async function rewriteQueryRowClass(file: string, ctx: AccessorCommand): Promise<void> {
 
 	const fileContent: string = await readFile(file, 'utf-8')
 		.catch(() => ctx.error('Invalid queryrow class'))
