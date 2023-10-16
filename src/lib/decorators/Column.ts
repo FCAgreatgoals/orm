@@ -1,11 +1,11 @@
 import 'reflect-metadata'
-import { knexTypes } from '@lib/classes/KnexMigrationBuilder'
-import { TableData } from '@lib/decorators/Table'
+import { knexTypes } from '../classes/KnexMigrationBuilder'
+import { TableData } from './Table'
 import { Knex } from 'knex'
 import Value = Knex.Value
 import EnumOptions = Knex.EnumOptions
-import generateEmptyColumn from '@lib/fetching/generateEmptyColumn'
-import { DecoratorFunction } from '@lib/types/Decorator'
+import generateEmptyColumn from '../fetching/generateEmptyColumn'
+import { DecoratorFunction } from '../types/Decorator'
 
 export default class Column {
 

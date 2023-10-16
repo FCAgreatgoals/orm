@@ -1,18 +1,28 @@
-import KnexMigrationBuilder from '@lib/classes/KnexMigrationBuilder'
-import compareDatabaseSchema from '@lib/fetching/compareDatabaseSchema'
-import { DatabaseSchema, SchemaDiff } from '@lib/types/Schema'
-import { writeMigrationFiles } from '@lib/fetching/writeMigrationFiles'
+import KnexMigrationBuilder from '../../lib/classes/KnexMigrationBuilder'
+import compareDatabaseSchema from '../../lib/fetching/compareDatabaseSchema'
+import { DatabaseSchema, SchemaDiff } from '../../lib/types/Schema'
+import { writeMigrationFiles } from '../../lib/fetching/writeMigrationFiles'
 import { Command, Flags } from '@oclif/core'
-import { Warning, blue } from '@utils/strings/colors'
-import databaseConnectionHandle from '@utils/database/databaseConnectionHandle'
-import fetchQueryRows from '@utils/files/fetchQueryRows'
+import { Warning, blue } from '../../utils/strings/colors'
+import databaseConnectionHandle from '../../utils/database/databaseConnectionHandle'
+import fetchQueryRows from '../../utils/files/fetchQueryRows'
 import prompts = require('prompts') // require because of outdated definition
-import { exec as execSync } from 'child_process'
-import checkForUnpushedMigrations from '@utils/database/checkForUnpushedMigrations'
+import { exec } from 'node:child_process'
+import checkForUnpushedMigrations from '../../utils/database/checkForUnpushedMigrations'
 import * as dotenv from 'dotenv'
-import { promisify } from 'util'
 
-const exec = promisify(execSync)
+async function execAsync(cmd: string, ctx: Command): Promise<void> {
+	return new Promise((resolve, reject) => {
+		exec(cmd, (error, stdout, stderr) => {
+			if (stderr) {
+				ctx.log(stdout)
+				ctx.error(stderr)
+			}
+			if (error) reject(error)
+			resolve()
+		})
+	})
+}
 
 export default class Generate extends Command {
 
@@ -39,11 +49,8 @@ export default class Generate extends Command {
 
 		if (process.env.ORM_AUTO_BUILD !== 'false') {
 			this.log('Building TS files...')
-			const result = await exec(process.env.ORM_CMD_BUILD || 'tsc')
-			if (result.stderr) {
-				this.log(result.stdout)
-				this.error(result.stderr)
-			}
+			await execAsync(process.env.ORM_CMD_BUILD || 'tsc', this)
+				.catch(() => { this.error('Building failed ! Please check your compilation trace before migrating') })
 		}
 
 		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this)
@@ -75,7 +82,7 @@ export default class Generate extends Command {
 
 		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
 
-		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema)
+		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.isMySQL ? 'mysql' : 'postgres')
 		await writeMigrationFiles(builder)
 			.catch((err: Error) => this.error(err.message))
 
@@ -98,8 +105,9 @@ export default class Generate extends Command {
 				return
 		}
 
-		const result = await exec('npx knex migrate:latest')
-		if (result.stderr) this.error(result.stderr)
+		exec('npx knex migrate:latest', (error, stdout: string, stderr: string) => {
+			if (stderr) this.error(stderr)
+		})
 
 	}
 }

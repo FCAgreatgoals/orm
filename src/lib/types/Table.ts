@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
-import { ColumnData } from '@lib/types/Column'
-import { DiffResult, DiffType } from '@lib/types/DiffResult'
-import { Join } from '@lib/decorators/Join'
+import { ColumnData } from './Column'
+import { DiffResult, DiffType } from './DiffResult'
+import { Join } from '../decorators/Join'
 
 export type CheckType = 'regexp' | 'numeral' | 'positive' | 'negative' | 'between' | 'in' | 'not in'
 export type CheckConstraint = {

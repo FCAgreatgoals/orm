@@ -1,9 +1,9 @@
 import { Knex } from 'knex'
-import { Constraint, Table } from '@lib/types/Table'
-import { ColumnData } from '@lib/types/Column'
-import { RawSQLResult, SQLResult } from '@lib/types/SQLResult'
-import Inspector from '@lib/clients/Inspector'
-import { knexTypes } from '@lib/classes/KnexMigrationBuilder'
+import { Constraint, Table } from '../types/Table'
+import { ColumnData } from '../types/Column'
+import { RawSQLResult, SQLResult } from '../types/SQLResult'
+import Inspector from './Inspector'
+import { knexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
 	return type.includes('int') || type.includes('bigint') || type.includes('tinyint') || type.includes('mediumint')
@@ -314,7 +314,7 @@ export default class MySQLInspector extends Inspector {
 				columnData[columnData.length - 1].enum_values = this.parseEnum(column.COLUMN_TYPE)
 			if (column.COLUMN_TYPE.includes('varchar'))
 				columnData[columnData.length - 1].data_type = knexTypes[column.COLUMN_TYPE.replace(/\(\d+\)/g, '') as keyof typeof knexTypes] || column.COLUMN_TYPE.replace(/\(\d+\)/g, '')
-			if (['date', 'timestamp', 'datetime'].includes(column.COLUMN_TYPE) && ['CURRENT_TIMESTAMP', 'curdate()'].includes(column.COLUMN_DEFAULT))
+			if (['date', 'timestamp', 'datetime', 'time'].includes(column.COLUMN_TYPE) && ['CURRENT_TIMESTAMP', 'curdate()'].includes(column.COLUMN_DEFAULT))
 				columnData[columnData.length - 1].default_value = 'NOW'
 			if (this.knex.client.constructor.name === 'Client_MySQL') {
 				const collation: SQLResult = await this.knex.select('COLLATION_NAME').from('INFORMATION_SCHEMA.COLUMNS').where({
