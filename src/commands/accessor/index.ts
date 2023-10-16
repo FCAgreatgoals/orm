@@ -23,12 +23,12 @@ export default class AccessorCommand extends Command {
 	async run(): Promise<void> {
 		const { flags } = await this.parse(AccessorCommand)
 
+		const queryrows: Array<string> = await searchProject(flags.project)
 		if (!flags.table) {
-			const queryrows: Array<string> = await searchProject(flags.project)
 			for (const file of queryrows) {
 				await rewriteQueryRowClass(file, this)
 			}
-		} else await rewriteQueryRowClass(`${flags.project}/${toFileNameString(flags.table)}${(flags.table.includes('.ts')) ? '' : '.ts'}`, this)
+		} else await rewriteQueryRowClass(queryrows.find(file => file.includes(toFileNameString(flags.table as string))) as string, this)
 
 		if (this.modifiedFilesNumber === 0) this.log('No queryrow classes changed')
 		else this.log(`Modified ${this.modifiedFilesNumber} queryrow classes`)

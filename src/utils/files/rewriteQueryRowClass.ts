@@ -17,6 +17,10 @@ function functionExists(content: Array<string>, functionName: string): boolean {
 	return false
 }
 
+function toElementId(element: string): string {
+	return element.replace('QueryRow', '').replace(/([A-Z])/g, '_$1').toLowerCase().concat('_id').replace('_', '')
+}
+
 function extractColumnData(content: Array<string>, lineIndex: number, hydratedProperties: Array<string>): QueryRowColumn | null {
 	const line: string = content[lineIndex]
 	const prevLine: string = content[lineIndex - 1]
@@ -40,14 +44,18 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 }
 
 function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
-	const newColumns: Array<QueryRowColumn> = []
+	let newColumns: Array<QueryRowColumn> = []
 	const hydratedProperties: Array<string> = []
+	const joinedProperties: Array<string> = []
 
 	for (const index in content) {
 		const line: string = content[parseInt(index)]
 		// eslint-disable-next-line no-useless-escape
 		const hydrationCheck: RegExpMatchArray | null = line.match(/@Transform.(?:De)?Hydrate\(\'(\w+)\',/)
 		if (hydrationCheck) hydratedProperties.push(hydrationCheck[1])
+
+		const joinCheck: RegExpMatchArray | null = line.match(/@Join\((\w+)(?:, ["'](\w+)["'])?/)
+		if (joinCheck) joinedProperties.push(joinCheck[2] ? joinCheck[2] : toElementId(joinCheck[1]))
 
 		const column: QueryRowColumn | null = extractColumnData(content, parseInt(index), hydratedProperties)
 		if (!column) continue
@@ -56,6 +64,10 @@ function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
 
 		newColumns.push(column)
 	}
+
+	joinedProperties.forEach(property => {
+		newColumns = newColumns.filter(column => column.columnName !== property)
+	})
 
 	return newColumns
 }
