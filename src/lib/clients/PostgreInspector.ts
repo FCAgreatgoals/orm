@@ -283,7 +283,7 @@ export default class PostgreInspector extends Inspector {
 				data.default_value = parseInt(data.default_value as string)
 			if (column.data_type === 'USER-DEFINED')
 				data.enum_values = await this.parseEnum(column.udt_name)
-			if (['date', 'timestamp', 'datetime'].includes(column.data_type) && column.column_default === 'CURRENT_TIMESTAMP')
+			if (['date', 'timestamp', 'datetime', 'time'].includes(column.data_type) && column.column_default === 'CURRENT_TIMESTAMP')
 				columnData[columnData.length - 1].default_value = 'NOW'
 			if (column.data_type === undefined)
 				throw new Error(`Column ${column.column_name} of table ${column.table_name} has no data_type or is not a valid data_type`)
