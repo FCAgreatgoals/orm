@@ -28,7 +28,9 @@ export default class AccessorCommand extends Command {
 			for (const file of queryrows) {
 				await rewriteQueryRowClass(file, this)
 			}
-		} else await rewriteQueryRowClass(queryrows.find(file => file.includes(toFileNameString(flags.table as string))) as string, this)
+		} else {
+			await rewriteQueryRowClass(`${flags.project}/${toFileNameString(flags.table)}${(flags.file.includes('.ts')) ? '' : '.ts'}`, this)
+		}
 
 		if (this.modifiedFilesNumber === 0) this.log('No queryrow classes changed')
 		else this.log(`Modified ${this.modifiedFilesNumber} queryrow classes`)

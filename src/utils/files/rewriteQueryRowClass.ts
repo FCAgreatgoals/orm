@@ -26,8 +26,8 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 	const prevLine: string = content[lineIndex - 1]
 
 	/* eslint-disable */
-	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.(?:De)?Hydrate\(\'\w+\',/) !== null
-	const data: RegExpMatchArray | null = line.match(/private (\w+)!: ([\w\.]+|(?:"\w+"(?: \| )?)*)/)
+	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.Hydrate\('\w+',/) !== null
+	const data: RegExpMatchArray | null = line.match(/private (\w+)!: ([\w\.]+|(?:'\w+'(?: \| )?)*)/)
 	if (!data) return null
 	/* eslint-enable */
 
@@ -75,8 +75,7 @@ function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
 function checkMethodsHeaders(content: Array<string>): Array<string> {
 	let newContent: Array<string> = content
 	let setterFunctionsExists: boolean = false
-	for (const line of content)
-		if (line.includes('// Getter Functions')) setterFunctionsExists = true
+	for (const line of content) if (line.includes('// Getter Functions')) setterFunctionsExists = true
 
 	if (!setterFunctionsExists) {
 		for (let i = content.length - 1; i >= 0; i--) {
@@ -109,7 +108,6 @@ async function addFunctions(content: Array<string>, column: QueryRowColumn): Pro
 }
 
 export default async function rewriteQueryRowClass(file: string, ctx: AccessorCommand): Promise<void> {
-
 	const fileContent: string = await readFile(file, 'utf-8')
 		.catch(() => ctx.error('Invalid queryrow class'))
 	let splitContent: Array<string> = fileContent.split('\n')
@@ -119,8 +117,8 @@ export default async function rewriteQueryRowClass(file: string, ctx: AccessorCo
 		splitContent = await addFunctions(splitContent, column)
 	}
 
-	if (newQueryRows.length == 0)
-		return
+	if (newQueryRows.length == 0) return
+
 	ctx.log(`QueryRow class ${blue(file)} updated successfully`)
 	ctx.modifiedFilesNumber++
 
