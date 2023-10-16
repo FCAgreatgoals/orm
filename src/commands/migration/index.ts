@@ -75,7 +75,7 @@ export default class Generate extends Command {
 
 		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
 
-		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema)
+		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.isMySQL ? 'mysql' : 'postgres')
 		await writeMigrationFiles(builder)
 			.catch((err: Error) => this.error(err.message))
 
