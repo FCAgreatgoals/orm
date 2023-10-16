@@ -108,8 +108,8 @@ export default class KnexMigrationBuilder {
 				? `.defaultTo('${data.default_value}')`
 				: `.defaultTo(${data.default_value})`
 
-			if (['timestamp', 'datetime', 'date'].includes(data.data_type as never) && data.default_value === 'NOW')
-				lines.push((data.data_type === 'date' && this.database !== 'postgres') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
+			if (['timestamp', 'datetime', 'date', 'time'].includes(data.data_type as never) && data.default_value === 'NOW')
+				lines.push((['date', 'time'].includes(data.data_type as never) && this.database !== 'postgres') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
 			else lines.push(defaultValueLine)
 		}
 		if (data.foreign_key_table && data.foreign_key_column)
