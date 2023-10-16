@@ -1,4 +1,4 @@
-import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
+import { KnexProfile, fetchKnexConfig } from '../../utils/files/knexConfig'
 import knex, { Knex } from 'knex'
 
 export default class KnexInstance {

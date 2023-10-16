@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
-import { toFileNameString } from '@utils/files/createNewClass'
-import { renderTemplate } from '@utils/files/renderTemplate'
-import { blue } from '@utils/strings/colors'
+import { toFileNameString } from './createNewClass'
+import { renderTemplate } from './renderTemplate'
+import { blue } from '../strings/colors'
 import AccessorCommand from '../../commands/accessor'
 
 type QueryRowColumn = {
@@ -17,12 +17,16 @@ function functionExists(content: Array<string>, functionName: string): boolean {
 	return false
 }
 
+function toElementId(element: string): string {
+	return element.replace('QueryRow', '').replace(/([A-Z])/g, '_$1').toLowerCase().concat('_id').replace('_', '')
+}
+
 function extractColumnData(content: Array<string>, lineIndex: number, hydratedProperties: Array<string>): QueryRowColumn | null {
 	const line: string = content[lineIndex]
 	const prevLine: string = content[lineIndex - 1]
 
 	/* eslint-disable */
-	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.Hydrate\(\'\w+\',/) !== null
+	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.(?:De)?Hydrate\(\'\w+\',/) !== null
 	const data: RegExpMatchArray | null = line.match(/private (\w+)!: ([\w\.]+|(?:"\w+"(?: \| )?)*)/)
 	if (!data) return null
 	/* eslint-enable */
@@ -40,14 +44,18 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 }
 
 function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
-	const newColumns: Array<QueryRowColumn> = []
+	let newColumns: Array<QueryRowColumn> = []
 	const hydratedProperties: Array<string> = []
+	const joinedProperties: Array<string> = []
 
 	for (const index in content) {
 		const line: string = content[parseInt(index)]
 		// eslint-disable-next-line no-useless-escape
-		const hydrationCheck: RegExpMatchArray | null = line.match(/@Transform.Hydrate\(\'(\w+)\',/)
+		const hydrationCheck: RegExpMatchArray | null = line.match(/@Transform.(?:De)?Hydrate\(\'(\w+)\',/)
 		if (hydrationCheck) hydratedProperties.push(hydrationCheck[1])
+
+		const joinCheck: RegExpMatchArray | null = line.match(/@Join\((\w+)(?:, ["'](\w+)["'])?/)
+		if (joinCheck) joinedProperties.push(joinCheck[2] ? joinCheck[2] : toElementId(joinCheck[1]))
 
 		const column: QueryRowColumn | null = extractColumnData(content, parseInt(index), hydratedProperties)
 		if (!column) continue
@@ -56,6 +64,10 @@ function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
 
 		newColumns.push(column)
 	}
+
+	joinedProperties.forEach(property => {
+		newColumns = newColumns.filter(column => column.columnName !== property)
+	})
 
 	return newColumns
 }
@@ -85,10 +97,12 @@ async function addFunctions(content: Array<string>, column: QueryRowColumn): Pro
 
 	newContent = checkMethodsHeaders(newContent)
 
-	const setterFunctionsIndex: number = newContent.indexOf('\n\t// Getter Functions')
+	let setterFunctionsIndex: number = newContent.indexOf('\n\t// Getter Functions')
+	if (setterFunctionsIndex === -1) setterFunctionsIndex = newContent.indexOf('\t// Getter Functions') - 1
 	newContent.splice(setterFunctionsIndex, 0, ...setterFunction)
 
-	const getterFunctionsIndex: number = newContent.indexOf('\n\t// Additional Functions\n')
+	let getterFunctionsIndex: number = newContent.indexOf('\n\t// Additional Functions\n')
+	if (getterFunctionsIndex === -1) getterFunctionsIndex = newContent.indexOf('\t// Additional Functions') - 1
 	newContent.splice(getterFunctionsIndex, 0, ...getterFunction)
 
 	return newContent

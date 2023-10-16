@@ -1,12 +1,12 @@
 import 'reflect-metadata'
-import { TableData } from '@lib/decorators/Table'
+import { TableData } from './Table'
 import { Knex } from 'knex'
 import DefaultToOptions = Knex.DefaultToOptions
 import deferrableType = Knex.deferrableType
 import Value = Knex.Value
 import lengthOperator = Knex.lengthOperator
-import generateEmptyColumn from '@lib/fetching/generateEmptyColumn'
-import { DecoratorFunction } from '@lib/types/Decorator'
+import generateEmptyColumn from '../fetching/generateEmptyColumn'
+import { DecoratorFunction } from '../types/Decorator'
 
 export default class ColumnOption {
 

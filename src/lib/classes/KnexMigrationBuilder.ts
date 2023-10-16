@@ -1,7 +1,7 @@
-import { ColumnData } from '@lib/types/Column'
-import { DiffResult } from '@lib/types/DiffResult'
-import { DatabaseSchema, SchemaDiff } from '@lib/types/Schema'
-import { TableDiff } from '@lib/types/Table'
+import { ColumnData } from '../types/Column'
+import { DiffResult } from '../types/DiffResult'
+import { DatabaseSchema, SchemaDiff } from '../types/Schema'
+import { TableDiff } from '../types/Table'
 
 const defaultLines = {
 	EXPORT_UP: 'exports.up = knex =>',
@@ -56,11 +56,13 @@ export default class KnexMigrationBuilder {
 	private schema: DatabaseSchema = []
 	private migrations: Array<KnexMigration> = []
 	private oldSchema: DatabaseSchema = []
+	private database: 'mysql' | 'postgres'
 
-	constructor (diff: SchemaDiff, schema: DatabaseSchema, old: DatabaseSchema) {
+	constructor (diff: SchemaDiff, schema: DatabaseSchema, old: DatabaseSchema, database: 'mysql' | 'postgres') {
 		this.diff = diff
 		this.schema = schema
 		this.oldSchema = old
+		this.database = database
 
 		for (const table of this.diff) {
 			this.migrations.push({ name: table.name, content: this.build(table.name), diff: table })
@@ -107,7 +109,7 @@ export default class KnexMigrationBuilder {
 				: `.defaultTo(${data.default_value})`
 
 			if (['timestamp', 'datetime', 'date'].includes(data.data_type as never) && data.default_value === 'NOW')
-				lines.push((data.data_type === 'date') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
+				lines.push((data.data_type === 'date' && this.database !== 'postgres') ? '.defaultTo(knex.raw(\'(CURRENT_DATE())\'))' : '.defaultTo(knex.fn.now())')
 			else lines.push(defaultValueLine)
 		}
 		if (data.foreign_key_table && data.foreign_key_column)

@@ -1,9 +1,9 @@
 import { Knex } from 'knex'
-import { Table } from '@lib/types/Table'
-import { ColumnData } from '@lib/types/Column'
-import { RawSQLResult, SQLResult } from '@lib/types/SQLResult'
-import Inspector from '@lib/clients/Inspector'
-import { knexTypes } from '@lib/classes/KnexMigrationBuilder'
+import { Table } from '../types/Table'
+import { ColumnData } from '../types/Column'
+import { RawSQLResult, SQLResult } from '../types/SQLResult'
+import Inspector from './Inspector'
+import { knexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
 	return type.includes('int') || type.includes('bigint') || type.includes('tinyint') || type.includes('mediumint')
@@ -283,6 +283,8 @@ export default class PostgreInspector extends Inspector {
 				data.default_value = parseInt(data.default_value as string)
 			if (column.data_type === 'USER-DEFINED')
 				data.enum_values = await this.parseEnum(column.udt_name)
+			if (['date', 'timestamp', 'datetime'].includes(column.data_type) && column.column_default === 'CURRENT_TIMESTAMP')
+				columnData[columnData.length - 1].default_value = 'NOW'
 			if (column.data_type === undefined)
 				throw new Error(`Column ${column.column_name} of table ${column.table_name} has no data_type or is not a valid data_type`)
 		})

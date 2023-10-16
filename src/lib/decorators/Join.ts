@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import QueryRow from '@lib/classes/QueryRow'
-import { TableData } from '@lib/decorators/Table'
+import QueryRow from '../classes/QueryRow'
+import { TableData } from '../decorators/Table'
 
 type JoinOptions = {
 	type?: 'INNER' | 'LEFT' | 'RIGHT' | 'LEFT OUTER' | 'RIGHT OUTER',

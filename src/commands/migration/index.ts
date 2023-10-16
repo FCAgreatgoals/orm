@@ -1,14 +1,14 @@
-import KnexMigrationBuilder from '@lib/classes/KnexMigrationBuilder'
-import compareDatabaseSchema from '@lib/fetching/compareDatabaseSchema'
-import { DatabaseSchema, SchemaDiff } from '@lib/types/Schema'
-import { writeMigrationFiles } from '@lib/fetching/writeMigrationFiles'
+import KnexMigrationBuilder from '../../lib/classes/KnexMigrationBuilder'
+import compareDatabaseSchema from '../../lib/fetching/compareDatabaseSchema'
+import { DatabaseSchema, SchemaDiff } from '../../lib/types/Schema'
+import { writeMigrationFiles } from '../../lib/fetching/writeMigrationFiles'
 import { Command, Flags } from '@oclif/core'
-import { Warning, blue } from '@utils/strings/colors'
-import databaseConnectionHandle from '@utils/database/databaseConnectionHandle'
-import fetchQueryRows from '@utils/files/fetchQueryRows'
+import { Warning, blue } from '../../utils/strings/colors'
+import databaseConnectionHandle from '../../utils/database/databaseConnectionHandle'
+import fetchQueryRows from '../../utils/files/fetchQueryRows'
 import prompts = require('prompts') // require because of outdated definition
 import { exec as execSync } from 'child_process'
-import checkForUnpushedMigrations from '@utils/database/checkForUnpushedMigrations'
+import checkForUnpushedMigrations from '../../utils/database/checkForUnpushedMigrations'
 import * as dotenv from 'dotenv'
 import { promisify } from 'util'
 
@@ -75,7 +75,7 @@ export default class Generate extends Command {
 
 		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
 
-		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema)
+		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.isMySQL ? 'mysql' : 'postgres')
 		await writeMigrationFiles(builder)
 			.catch((err: Error) => this.error(err.message))
 
