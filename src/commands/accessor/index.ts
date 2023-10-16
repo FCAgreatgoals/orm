@@ -1,7 +1,7 @@
 import { Command, Flags } from '@oclif/core'
-import { toFileNameString } from '@utils/files/createNewClass'
-import rewriteQueryRowClass from '@utils/files/rewriteQueryRowClass'
-import { searchProject } from '@utils/files/searchProject'
+import { toFileNameString } from '../../utils/files/createNewClass'
+import rewriteQueryRowClass from '../../utils/files/rewriteQueryRowClass'
+import { searchProject } from '../../utils/files/searchProject'
 
 export default class AccessorCommand extends Command {
 

@@ -1,9 +1,9 @@
 import { Command } from '@oclif/core'
-import validateNames from '@utils/strings/validateNames'
-import upcaseFirst from '@utils/strings/upcase'
-import { renderTemplate } from '@utils/files/renderTemplate'
-import writeFile from '@utils/files/writeFile'
-import { blue } from '@utils/strings/colors'
+import validateNames from '../strings/validateNames'
+import upcaseFirst from '../strings/upcase'
+import { renderTemplate } from './renderTemplate'
+import writeFile from './writeFile'
+import { blue } from '../strings/colors'
 import { existsSync } from 'fs'
 
 export interface ICreateNewClassParams {

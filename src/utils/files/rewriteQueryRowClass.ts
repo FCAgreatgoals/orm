@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises'
-import { toFileNameString } from '@utils/files/createNewClass'
-import { renderTemplate } from '@utils/files/renderTemplate'
-import { blue } from '@utils/strings/colors'
+import { toFileNameString } from './createNewClass'
+import { renderTemplate } from './renderTemplate'
+import { blue } from '../strings/colors'
 import AccessorCommand from '../../commands/accessor'
 
 type QueryRowColumn = {

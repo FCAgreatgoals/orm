@@ -1,6 +1,6 @@
 import { Command } from '@oclif/core'
-import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
-import { Warning } from '@utils/strings/colors'
+import { KnexProfile, fetchKnexConfig } from '../files/knexConfig'
+import { Warning } from '../strings/colors'
 import { readdir, rm } from 'fs/promises'
 import knex, { Knex } from 'knex'
 

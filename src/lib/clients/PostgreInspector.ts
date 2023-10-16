@@ -1,9 +1,9 @@
 import { Knex } from 'knex'
-import { Table } from '@lib/types/Table'
-import { ColumnData } from '@lib/types/Column'
-import { RawSQLResult, SQLResult } from '@lib/types/SQLResult'
-import Inspector from '@lib/clients/Inspector'
-import { knexTypes } from '@lib/classes/KnexMigrationBuilder'
+import { Table } from '../types/Table'
+import { ColumnData } from '../types/Column'
+import { RawSQLResult, SQLResult } from '../types/SQLResult'
+import Inspector from './Inspector'
+import { knexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
 	return type.includes('int') || type.includes('bigint') || type.includes('tinyint') || type.includes('mediumint')

@@ -1,4 +1,4 @@
-import { ColumnData } from '@lib/types/Column'
+import { ColumnData } from '../types/Column'
 
 export default function generateEmptyColumn(columnName: string): Partial<ColumnData> {
 	return {

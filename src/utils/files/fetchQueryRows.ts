@@ -1,10 +1,10 @@
-import { DatabaseSchema } from '@lib/types/Schema'
+import { DatabaseSchema } from '../../lib/types/Schema'
 import { TSConfig } from '@oclif/core/lib/interfaces'
-import { fetchConfig } from '@utils/files/tsconfig'
-import { searchProject } from '@utils/files/searchProject'
+import { fetchConfig } from '../../utils/files/tsconfig'
+import { searchProject } from '../../utils/files/searchProject'
 import { Command } from '@oclif/core'
-import translateTable from '@lib/fetching/translateTable'
-import { TableSchema } from '@lib/types/Table'
+import translateTable from '../../lib/fetching/translateTable'
+import { TableSchema } from '../../lib/types/Table'
 
 function sortTableSchemasByReference(tableSchemas: Array<TableSchema>): Array<TableSchema> {
 	const visited = new Set<string>()

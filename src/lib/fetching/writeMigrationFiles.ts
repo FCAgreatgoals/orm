@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from 'fs/promises'
-import KnexMigrationBuilder, { KnexMigration } from '@lib/classes/KnexMigrationBuilder'
-import { TableDiff } from '@lib/types/Table'
-import { Diff } from '@lib/types/DiffResult'
-import { KnexProfile, fetchKnexConfig } from '@utils/files/knexConfig'
+import KnexMigrationBuilder, { KnexMigration } from '../classes/KnexMigrationBuilder'
+import { TableDiff } from '../types/Table'
+import { Diff } from '../types/DiffResult'
+import { KnexProfile, fetchKnexConfig } from '../../utils/files/knexConfig'
 import { existsSync } from 'fs'
 
 function dateToString(delayInSeconds: number): string {

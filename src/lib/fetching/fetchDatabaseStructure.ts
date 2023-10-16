@@ -1,9 +1,9 @@
 import { Knex } from 'knex'
-import KnexInspector from '@lib/fetching/KnexInspector'
-import { DatabaseSchema } from '@lib/types/Schema'
-import { ColumnData } from '@lib/types/Column'
-import { CheckConstraint, ConstraintType, ReferenceConstraint, Table } from '@lib/types/Table'
-import Inspector from '@lib/clients/Inspector'
+import KnexInspector from './KnexInspector'
+import { DatabaseSchema } from '../types/Schema'
+import { ColumnData } from '../types/Column'
+import { CheckConstraint, ConstraintType, ReferenceConstraint, Table } from '../types/Table'
+import Inspector from '../clients/Inspector'
 
 function handleCheckConstraint(constraint: string, table: Table, schema: DatabaseSchema, tableIndex: number): void {
 	const data: CheckConstraint = table.checks[constraint]

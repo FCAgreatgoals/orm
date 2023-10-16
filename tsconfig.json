@@ -9,10 +9,6 @@
 		"strict": true,
 		"target": "ES2019",
 		"baseUrl": "./src",
-		"paths": {
-			"@lib/*": ["lib/*"],
-			"@utils/*": ["utils/*"],
-		},
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true
 	},

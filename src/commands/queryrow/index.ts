@@ -1,5 +1,5 @@
 import { Args, Command, Flags } from '@oclif/core'
-import createNewClass from '@utils/files/createNewClass'
+import createNewClass from '../../utils/files/createNewClass'
 
 export default class Table extends Command {
 

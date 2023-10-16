@@ -1,5 +1,5 @@
-import { ColumnData } from '@lib/types/Column'
-import { DiffResult } from '@lib/types/DiffResult'
+import { ColumnData } from '../types/Column'
+import { DiffResult } from '../types/DiffResult'
 
 export default function compareColumnData(obj1: Partial<ColumnData>, obj2: ColumnData, isMySQL?: boolean): DiffResult | null {
 	const keys1: Array<string> = Object.keys(obj1)
