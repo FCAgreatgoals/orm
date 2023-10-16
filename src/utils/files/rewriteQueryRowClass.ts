@@ -26,7 +26,7 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 	const prevLine: string = content[lineIndex - 1]
 
 	/* eslint-disable */
-	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.Hydrate\('\w+',/) !== null
+	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.(?:De)?Hydrate\('\w+',/) !== null
 	const data: RegExpMatchArray | null = line.match(/private (\w+)!: ([\w\.]+|(?:'\w+'(?: \| )?)*)/)
 	if (!data) return null
 	/* eslint-enable */
@@ -91,8 +91,8 @@ function checkMethodsHeaders(content: Array<string>): Array<string> {
 
 async function addFunctions(content: Array<string>, column: QueryRowColumn): Promise<Array<string>> {
 	let newContent: Array<string> = content
-	const setterFunction: Array<string> = (await renderTemplate('setterfunctions.ejs', column)).replace(/&#34;/g, '"').split('\n')
-	const getterFunction: Array<string> = (await renderTemplate('getterfunctions.ejs', column)).replace(/&#34;/g, '"').split('\n')
+	const setterFunction: Array<string> = (await renderTemplate('setterfunctions.ejs', column)).replace(/&#39;/g, '\'').split('\n')
+	const getterFunction: Array<string> = (await renderTemplate('getterfunctions.ejs', column)).replace(/&#39;/g, '\'').split('\n')
 
 	newContent = checkMethodsHeaders(newContent)
 
