@@ -1,7 +1,7 @@
-import { ColumnData } from '@lib/types/Column'
-import { DiffResult } from '@lib/types/DiffResult'
-import { DatabaseSchema, SchemaDiff } from '@lib/types/Schema'
-import { TableDiff } from '@lib/types/Table'
+import { ColumnData } from '../types/Column'
+import { DiffResult } from '../types/DiffResult'
+import { DatabaseSchema, SchemaDiff } from '../types/Schema'
+import { TableDiff } from '../types/Table'
 
 const defaultLines = {
 	EXPORT_UP: 'exports.up = knex =>',

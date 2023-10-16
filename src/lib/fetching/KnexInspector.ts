@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
-import Inspector from '@lib/clients/Inspector'
-import MySQLInspector from '@lib/clients/MySQLInspector'
-import PostgreInspector from '@lib/clients/PostgreInspector'
+import Inspector from '../clients/Inspector'
+import MySQLInspector from '../clients/MySQLInspector'
+import PostgreInspector from '../clients/PostgreInspector'
 
 export default function KnexInspector(database: Knex): Inspector | null {
 

@@ -1,6 +1,6 @@
-import { TableData } from '@lib/decorators/Table'
-import { ColumnData } from '@lib/types/Column'
-import { TableSchema } from '@lib/types/Table'
+import { TableData } from '../decorators/Table'
+import { ColumnData } from '../types/Column'
+import { TableSchema } from '../types/Table'
 
 export default function translateTable(table: TableData): TableSchema {
 	const schema: TableSchema = { name: table.name as string, columns: [], uniqueColumns: [], joins: table.joins }

@@ -1,8 +1,8 @@
-import compareColumnData from '@lib/fetching/compareColumnData'
-import { ColumnData } from '@lib/types/Column'
-import { DiffResult } from '@lib/types/DiffResult'
-import { DatabaseSchema, SchemaDiff } from '@lib/types/Schema'
-import { TableDiff, TableSchema } from '@lib/types/Table'
+import compareColumnData from './compareColumnData'
+import { ColumnData } from '../types/Column'
+import { DiffResult } from '../types/DiffResult'
+import { DatabaseSchema, SchemaDiff } from '../types/Schema'
+import { TableDiff, TableSchema } from '../types/Table'
 
 function checkAddedTables(schema1: DatabaseSchema, schema2: DatabaseSchema, result: SchemaDiff): void {
 

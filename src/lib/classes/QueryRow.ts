@@ -1,9 +1,9 @@
 import { Knex } from 'knex'
-import Logger from '@lib/classes/Logger'
-import { Join } from '@lib/decorators/Join'
-import { TableData } from '@lib/decorators/Table'
-import KnexInstance from '@lib/classes/KnexInstance'
 import { WhereObject, FindAllOptions, OrderBy } from '../types/QueryRow'
+import Logger from '../classes/Logger'
+import { Join } from '../decorators/Join'
+import { TableData } from '../decorators/Table'
+import KnexInstance from './KnexInstance'
 
 export default class QueryRow {
 

@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Join } from '@lib/decorators/Join'
+import { Join } from './Join'
 import { TransformDecoratorOptions } from './Transform'
 
 export type TableData = {
