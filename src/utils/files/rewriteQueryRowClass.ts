@@ -22,7 +22,7 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 	const prevLine: string = content[lineIndex - 1]
 
 	/* eslint-disable */
-	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.Hydrate\(\'\w+\',/) !== null
+	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.(?:De)?Hydrate\(\'\w+\',/) !== null
 	const data: RegExpMatchArray | null = line.match(/private (\w+)!: ([\w\.]+|(?:"\w+"(?: \| )?)*)/)
 	if (!data) return null
 	/* eslint-enable */
@@ -46,7 +46,7 @@ function fetchNewColumns(content: Array<string>): Array<QueryRowColumn> {
 	for (const index in content) {
 		const line: string = content[parseInt(index)]
 		// eslint-disable-next-line no-useless-escape
-		const hydrationCheck: RegExpMatchArray | null = line.match(/@Transform.Hydrate\(\'(\w+)\',/)
+		const hydrationCheck: RegExpMatchArray | null = line.match(/@Transform.(?:De)?Hydrate\(\'(\w+)\',/)
 		if (hydrationCheck) hydratedProperties.push(hydrationCheck[1])
 
 		const column: QueryRowColumn | null = extractColumnData(content, parseInt(index), hydratedProperties)
@@ -85,10 +85,12 @@ async function addFunctions(content: Array<string>, column: QueryRowColumn): Pro
 
 	newContent = checkMethodsHeaders(newContent)
 
-	const setterFunctionsIndex: number = newContent.indexOf('\n\t// Getter Functions')
+	let setterFunctionsIndex: number = newContent.indexOf('\n\t// Getter Functions')
+	if (setterFunctionsIndex === -1) setterFunctionsIndex = newContent.indexOf('\t// Getter Functions') - 1
 	newContent.splice(setterFunctionsIndex, 0, ...setterFunction)
 
-	const getterFunctionsIndex: number = newContent.indexOf('\n\t// Additional Functions\n')
+	let getterFunctionsIndex: number = newContent.indexOf('\n\t// Additional Functions\n')
+	if (getterFunctionsIndex === -1) getterFunctionsIndex = newContent.indexOf('\t// Additional Functions') - 1
 	newContent.splice(getterFunctionsIndex, 0, ...getterFunction)
 
 	return newContent
