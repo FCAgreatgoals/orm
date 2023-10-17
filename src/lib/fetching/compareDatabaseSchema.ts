@@ -3,8 +3,9 @@ import { ColumnData } from '../types/Column'
 import { DiffResult } from '../types/DiffResult'
 import { DatabaseSchema, SchemaDiff } from '../types/Schema'
 import { TableDiff, TableSchema } from '../types/Table'
+import { ClientType } from 'lib/clients/Inspector'
 
-function checkAddedTables(schema1: DatabaseSchema, schema2: DatabaseSchema, result: SchemaDiff): void {
+function checkAddedTables(schema1: DatabaseSchema, schema2: DatabaseSchema, result: SchemaDiff, type: ClientType): void {
 
 	for (const table in schema2) {
 		const table2: TableSchema = schema2[table]
@@ -13,7 +14,7 @@ function checkAddedTables(schema1: DatabaseSchema, schema2: DatabaseSchema, resu
 			const tableDiff: TableDiff = { name: table2.name, columns: {}, deletedColumns: [], type: 'added' }
 			for (const column in table2.columns) {
 				const columnName: string = table2.columns[column].name
-				tableDiff.columns[columnName] = compareColumnData({}, table2.columns[column]) || {}
+				tableDiff.columns[columnName] = compareColumnData({}, table2.columns[column], type) || {}
 			}
 			if (table2.uniqueColumns?.length || 0 > 0)
 				tableDiff.uniqueUpdated = true
@@ -22,7 +23,7 @@ function checkAddedTables(schema1: DatabaseSchema, schema2: DatabaseSchema, resu
 	}
 }
 
-function checkAllColumns(schema1: DatabaseSchema, schema2: DatabaseSchema, table: string, tableDiff: TableDiff, isMySQL?: boolean): void {
+function checkAllColumns(schema1: DatabaseSchema, schema2: DatabaseSchema, table: string, tableDiff: TableDiff, type: ClientType): void {
 	const oldTable: TableSchema = schema1.find(tableData => tableData.name === table) as TableSchema
 	const newTable: TableSchema = schema2.find(tableData => tableData.name === table) as TableSchema
 
@@ -34,14 +35,14 @@ function checkAllColumns(schema1: DatabaseSchema, schema2: DatabaseSchema, table
 			continue
 		}
 
-		const columnDiff: DiffResult | null = compareColumnData(oldTable.columns[column], newColumn, isMySQL)
+		const columnDiff: DiffResult | null = compareColumnData(oldTable.columns[column], newColumn, type)
 		if (columnDiff)
 			tableDiff.columns[columnName] = columnDiff
 	}
 	for (const column in newTable.columns) {
 		const columnName: string = newTable.columns[column].name
 		if (oldTable.columns.find(column => column.name === columnName) === undefined) {
-			tableDiff.columns[columnName] = compareColumnData({}, newTable.columns[column]) || {}
+			tableDiff.columns[columnName] = compareColumnData({}, newTable.columns[column], type) || {}
 			continue
 		}
 	}
@@ -56,7 +57,7 @@ function checkAllColumns(schema1: DatabaseSchema, schema2: DatabaseSchema, table
  *
  * @returns The differences between the two schemas as a {@link SchemaDiff} object
  */
-export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: DatabaseSchema, isMySQL?: boolean): SchemaDiff {
+export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: DatabaseSchema, type: ClientType): SchemaDiff {
 	const result: SchemaDiff = []
 	for (const table in schema1) {
 		const table1: TableSchema = schema1[table]
@@ -69,13 +70,13 @@ export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: 
 			continue
 		}
 
-		checkAllColumns(schema1, schema2, table1.name, tableDiff, isMySQL)
+		checkAllColumns(schema1, schema2, table1.name, tableDiff, type)
 
 		if (JSON.stringify(table2.uniqueColumns) !== JSON.stringify(table1?.uniqueColumns))
 				tableDiff.uniqueUpdated = true
 		if (Object.keys(tableDiff.columns).length > 0 || tableDiff.deletedColumns.length > 0)
 			result.push(tableDiff)
 	}
-	checkAddedTables(schema1, schema2, result)
+	checkAddedTables(schema1, schema2, result, type)
 	return result
 }

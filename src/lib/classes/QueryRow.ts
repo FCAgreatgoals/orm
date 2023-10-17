@@ -4,8 +4,23 @@ import Logger from '../classes/Logger'
 import { Join } from '../decorators/Join'
 import { TableData } from '../decorators/Table'
 import KnexInstance from './KnexInstance'
+import upcaseFirst from '../../utils/strings/upcase'
 
 export default class QueryRow {
+
+	constructor() {
+		return new Proxy(this, {
+			get: (target: any, propertyKey: string) => {
+				const { joins } = Reflect.getMetadata('table:data', target.constructor)
+				if (!joins) return target[propertyKey]
+
+				const join: Join | undefined = joins.find((join: Join) => join.column === propertyKey)
+				if (!join) return target[propertyKey]
+
+				return target[join.propertyKey][`get${upcaseFirst(join.references || 'id')}`]()
+			}
+		})
+	}
 
     protected static getLogger(tableName: string): Logger {
         return new Logger(`[ORM] [${tableName}]`)
@@ -24,13 +39,13 @@ export default class QueryRow {
         return knex
     }
 
-    protected static buildWhere(knex: Knex.QueryBuilder, whereObject: WhereObject): Knex.QueryBuilder {
+    protected static buildWhere(knex: Knex.QueryBuilder, whereObject: WhereObject, mainTable: string): Knex.QueryBuilder {
         return knex.where(builder => {
             Object.entries(whereObject).forEach(([column, data]) => {
                 const operator = Array.isArray(data) ? data[0] : '='
                 const value = Array.isArray(data) ? (data[1] || null) : data
 
-                builder.where(column, operator, value)
+                builder.where(column === 'id' ? `${mainTable}.${column}` : column, operator, value)
             })
         })
     }
@@ -61,7 +76,7 @@ export default class QueryRow {
 			if (options.orderBy) request = this.buildOrderBy(request, options.orderBy)
 		}
 
-        return this.buildJoin(this.buildWhere(request, whereObject))
+        return this.buildJoin(this.buildWhere(request, whereObject, data.name))
             .then((data: Array<any>) => this.hydrate(data, options?.limit === undefined || options.limit > 1))
             .catch(QueryRow.getLogger(data.name).catch('ESQL-F'))
     }
@@ -78,7 +93,7 @@ export default class QueryRow {
 		const data: Required<TableData> = Reflect.getMetadata('table:data', this)
 		const request = KnexInstance.get()(data.name).count('*')
 
-		return this.buildWhere(request, whereObject)
+		return this.buildWhere(request, whereObject, data.name)
 			.then((count: number) => count)
 			.catch(QueryRow.getLogger(data.name).catch('ESQL-C'))
 	}

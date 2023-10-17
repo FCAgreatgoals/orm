@@ -2,7 +2,7 @@ import { Knex } from 'knex'
 import { Table } from '../types/Table'
 import { ColumnData } from '../types/Column'
 import { RawSQLResult, SQLResult } from '../types/SQLResult'
-import Inspector from './Inspector'
+import Inspector, { ClientType } from './Inspector'
 import { knexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
@@ -42,7 +42,7 @@ function parseBetweenExpression(expression: string): Array<Array<number> | numbe
 export default class PostgreInspector extends Inspector {
 
 	private knex: Knex
-	public client_type: 'mysql' | 'postgres' = 'postgres'
+	public client_type: ClientType = 'postgres'
 
 	constructor(knex: Knex) {
 		super()
