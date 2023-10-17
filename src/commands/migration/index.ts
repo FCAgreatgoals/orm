@@ -10,6 +10,7 @@ import prompts = require('prompts') // require because of outdated definition
 import { exec } from 'node:child_process'
 import checkForUnpushedMigrations from '../../utils/database/checkForUnpushedMigrations'
 import * as dotenv from 'dotenv'
+import { ClientType } from 'lib/clients/Inspector'
 
 async function execAsync(cmd: string, ctx: Command): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -55,7 +56,7 @@ export default class Generate extends Command {
 
 		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this)
 			.catch((err: Error) => this.error(err.message))
-		const oldSchema: { schema: DatabaseSchema, isMySQL: boolean } = await databaseConnectionHandle(this)
+		const oldSchema: { schema: DatabaseSchema, type: ClientType } = await databaseConnectionHandle(this)
 			.catch((err: Error) => this.error(err.message))
 
 		if (flags.table) {
@@ -65,7 +66,7 @@ export default class Generate extends Command {
 			oldSchema.schema = oldSchema.schema.filter((table) => table.name === flags.table)
 		}
 
-		const diff: SchemaDiff = compareDatabaseSchema(oldSchema.schema, newSchema, oldSchema.isMySQL)
+		const diff: SchemaDiff = compareDatabaseSchema(oldSchema.schema, newSchema, oldSchema.type)
 
 		const deletedTables = diff.filter((table) => table.type === 'deleted')
 		if (deletedTables.length > 0 && !flags.authorizeDeletion) {
@@ -82,7 +83,7 @@ export default class Generate extends Command {
 
 		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
 
-		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.isMySQL ? 'mysql' : 'postgres')
+		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.type)
 		await writeMigrationFiles(builder)
 			.catch((err: Error) => this.error(err.message))
 
