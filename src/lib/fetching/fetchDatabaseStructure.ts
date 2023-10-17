@@ -67,9 +67,8 @@ function handleForeignKeyConstraint(constraint: string, table: Table, schema: Da
 }
 
 function parseConstraints(tableInfo: Table, schema: DatabaseSchema, tableIndex: number, inspector: Inspector) {
+	if (Object.keys(tableInfo.constraints).length === 0) return
 
-	if (Object.keys(tableInfo.constraints).length === 0)
-		return
 	(schema[tableIndex - 1].columns.find(column => column.name === tableInfo.primary) as ColumnData).is_primary_key = true
 
 	for (const uniqueColumn of tableInfo.uniques || [])

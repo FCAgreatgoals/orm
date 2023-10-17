@@ -24,12 +24,12 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 	})
 
 	modifiedKeys.forEach(key => {
-		if (key === 'numeric_precision' && obj2[key as keyof ColumnData] === null)
-			return
-		if (key === 'max_length' && isMySQL && obj2[key as keyof ColumnData] === null)
-			return
-		if (key === 'is_unsigned' && !isMySQL)
-			return
+		if (key === 'numeric_precision' && obj2[key as keyof ColumnData] === null) return
+
+		if (key === 'max_length' && isMySQL && obj2[key as keyof ColumnData] === null) return
+
+		if (key === 'is_unsigned' && !isMySQL) return
+
 		result[key] = {
 			newValue: obj2[key as keyof ColumnData],
 			type: 'modified'
@@ -37,8 +37,8 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 	})
 
 	deletedKeys.forEach(key => {
-		if (key === 'collation')
-			return
+		if (key === 'collation') return
+
 		result[key] = {
 			newValue: null,
 			type: 'deleted'
