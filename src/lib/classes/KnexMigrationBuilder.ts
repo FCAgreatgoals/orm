@@ -1,3 +1,4 @@
+import { ClientType } from 'lib/clients/Inspector'
 import { ColumnData } from '../types/Column'
 import { DiffResult } from '../types/DiffResult'
 import { DatabaseSchema, SchemaDiff } from '../types/Schema'
@@ -58,7 +59,7 @@ export default class KnexMigrationBuilder {
 	private oldSchema: DatabaseSchema = []
 	private database: 'mysql' | 'postgres'
 
-	constructor (diff: SchemaDiff, schema: DatabaseSchema, old: DatabaseSchema, database: 'mysql' | 'postgres') {
+	constructor (diff: SchemaDiff, schema: DatabaseSchema, old: DatabaseSchema, database: ClientType) {
 		this.diff = diff
 		this.schema = schema
 		this.oldSchema = old
