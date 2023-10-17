@@ -3,7 +3,7 @@ import KnexInspector from './KnexInspector'
 import { DatabaseSchema } from '../types/Schema'
 import { ColumnData } from '../types/Column'
 import { CheckConstraint, ConstraintType, ReferenceConstraint, Table } from '../types/Table'
-import Inspector from '../clients/Inspector'
+import Inspector, { ClientType } from '../clients/Inspector'
 
 function handleCheckConstraint(constraint: string, table: Table, schema: DatabaseSchema, tableIndex: number): void {
 	const data: CheckConstraint = table.checks[constraint]
@@ -67,9 +67,8 @@ function handleForeignKeyConstraint(constraint: string, table: Table, schema: Da
 }
 
 function parseConstraints(tableInfo: Table, schema: DatabaseSchema, tableIndex: number, inspector: Inspector) {
+	if (Object.keys(tableInfo.constraints).length === 0) return
 
-	if (Object.keys(tableInfo.constraints).length === 0)
-		return
 	(schema[tableIndex - 1].columns.find(column => column.name === tableInfo.primary) as ColumnData).is_primary_key = true
 
 	for (const uniqueColumn of tableInfo.uniques || [])
@@ -97,7 +96,7 @@ function parseConstraints(tableInfo: Table, schema: DatabaseSchema, tableIndex: 
 	}
 }
 
-export default async function fetchDatabaseStructure(database: Knex, includeKnexTables = false): Promise<DatabaseSchema> {
+export default async function fetchDatabaseStructure(database: Knex, includeKnexTables = false): Promise<{ schema: DatabaseSchema, type: ClientType }> {
 	const inspector: Inspector | null = KnexInspector(database)
 	if (!inspector)
 		throw new Error(`KnexInspector: Unsupported database client: ${database.client.config.client}`)
@@ -122,5 +121,5 @@ export default async function fetchDatabaseStructure(database: Knex, includeKnex
 		parseConstraints(tableInfo, schema, tableIndex, inspector)
 	}
 
-	return schema
+	return { schema, type: inspector.client_type }
 }

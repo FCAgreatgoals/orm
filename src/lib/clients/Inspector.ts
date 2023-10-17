@@ -1,6 +1,8 @@
+export type ClientType = 'mysql' | 'postgres'
+
 export default abstract class Inspector {
 
-	public abstract client_type: 'mysql' | 'postgres'
+	public abstract client_type: ClientType
 
 	abstract tables(): Promise<string[]>
 	abstract tables(schemaName: string): Promise<string[]>

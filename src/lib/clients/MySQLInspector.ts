@@ -2,7 +2,7 @@ import { Knex } from 'knex'
 import { Constraint, Table } from '../types/Table'
 import { ColumnData } from '../types/Column'
 import { RawSQLResult, SQLResult } from '../types/SQLResult'
-import Inspector from './Inspector'
+import Inspector, { ClientType } from './Inspector'
 import { knexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
@@ -61,7 +61,7 @@ function parseBetweenExpression(expression: string): Array<number | Array<number
 export default class MySQLInspector extends Inspector {
 
 	private knex: Knex
-	public client_type: 'mysql' | 'postgres' = 'mysql'
+	public client_type: ClientType = 'mysql'
 
 	constructor(knex: Knex) {
 		super()
@@ -219,6 +219,7 @@ export default class MySQLInspector extends Inspector {
 		.leftJoin('INFORMATION_SCHEMA.KEY_COLUMN_USAGE as k', function () {
 			this.on('c.CONSTRAINT_NAME', '=', 'k.CONSTRAINT_NAME')
 			.andOn('c.TABLE_SCHEMA', '=', 'k.CONSTRAINT_SCHEMA')
+			.andOn('c.TABLE_NAME', '=', 'k.TABLE_NAME')
 		})
 		.where({
 			'c.table_name': table,
@@ -314,6 +315,8 @@ export default class MySQLInspector extends Inspector {
 				columnData[columnData.length - 1].enum_values = this.parseEnum(column.COLUMN_TYPE)
 			if (column.COLUMN_TYPE.includes('varchar'))
 				columnData[columnData.length - 1].data_type = knexTypes[column.COLUMN_TYPE.replace(/\(\d+\)/g, '') as keyof typeof knexTypes] || column.COLUMN_TYPE.replace(/\(\d+\)/g, '')
+			if (column.COLUMN_TYPE.match(/int\(\d+\)(?: unsigned)?/))
+				columnData[columnData.length - 1].data_type = 'integer'
 			if (['date', 'timestamp', 'datetime', 'time'].includes(column.COLUMN_TYPE) && ['CURRENT_TIMESTAMP', 'curdate()'].includes(column.COLUMN_DEFAULT))
 				columnData[columnData.length - 1].default_value = 'NOW'
 			if (this.knex.client.constructor.name === 'Client_MySQL') {
