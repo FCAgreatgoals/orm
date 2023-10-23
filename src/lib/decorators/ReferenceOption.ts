@@ -17,6 +17,9 @@ export default class ReferenceOption {
 
 				case 'inTable': {
 					columns[propertyKey].foreign_key_table = args[0]
+					if (!data.referencedTables) data.referencedTables = []
+					
+					data.referencedTables.push(args[0])
 					break
 				}
 

@@ -317,6 +317,8 @@ export default class MySQLInspector extends Inspector {
 				columnData[columnData.length - 1].data_type = knexTypes[column.COLUMN_TYPE.replace(/\(\d+\)/g, '') as keyof typeof knexTypes] || column.COLUMN_TYPE.replace(/\(\d+\)/g, '')
 			if (column.COLUMN_TYPE.match(/int\(\d+\)(?: unsigned)?/))
 				columnData[columnData.length - 1].data_type = 'integer'
+			if (column.COLUMN_TYPE === 'tinyint(1)')
+				columnData[columnData.length - 1].data_type = 'boolean'
 			if (['date', 'timestamp', 'datetime', 'time'].includes(column.COLUMN_TYPE) && ['CURRENT_TIMESTAMP', 'curdate()'].includes(column.COLUMN_DEFAULT))
 				columnData[columnData.length - 1].default_value = 'NOW'
 			if (this.knex.client.constructor.name === 'Client_MySQL') {
