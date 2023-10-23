@@ -44,7 +44,7 @@ export default async function fetchQueryRows(flags: Record<string, string>, ctx:
 		})
 		if (queryrow.default === undefined)
 			ctx.error(`The file ${file} does not have a default export`)
-		tables.push(translateTable(Reflect.getMetadata('table:data', Object.values(queryrow.default)[0] as any)))
+		tables.push(translateTable(Reflect.getMetadata('table:data', queryrow.default.default as any)))
 	}
 
 	return sortTableSchemasByReference(tables)
