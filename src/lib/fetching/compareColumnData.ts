@@ -31,6 +31,12 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 
 		if (key === 'is_unsigned' && type !== 'mysql') return
 
+		if (key === 'numeric_precision' && obj2.data_type === 'boolean') return
+
+		if (key === 'numeric_scale' && obj2.data_type === 'boolean') return
+
+		if (key === 'default_value' && obj2.data_type === 'text') return
+
 		result[key] = {
 			newValue: obj2[key as keyof ColumnData],
 			type: 'modified'
