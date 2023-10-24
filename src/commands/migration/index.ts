@@ -54,10 +54,8 @@ export default class Generate extends Command {
 				.catch(() => { this.error('Building failed ! Please check your compilation trace before migrating') })
 		}
 
-		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this)
-			.catch((err: Error) => this.error(err.message))
-		const oldSchema: { schema: DatabaseSchema, type: ClientType } = await databaseConnectionHandle(this)
-			.catch((err: Error) => this.error(err.message))
+		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this).catch((err: Error) => this.error(err.message))
+		const oldSchema: { schema: DatabaseSchema, type: ClientType } = await databaseConnectionHandle(this).catch((err: Error) => this.error(err.message))
 
 		if (flags.table) {
 			newSchema = newSchema.filter((table) => table.name === flags.table)
@@ -81,7 +79,7 @@ export default class Generate extends Command {
 				return
 		}
 
-		await checkForUnpushedMigrations(this, flags.env, flags.out, flags.table)
+		await checkForUnpushedMigrations(this, flags.table)
 
 		const builder: KnexMigrationBuilder = new KnexMigrationBuilder(diff, newSchema, oldSchema.schema, oldSchema.type)
 		await writeMigrationFiles(builder)

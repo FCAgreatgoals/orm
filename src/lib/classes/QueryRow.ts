@@ -94,7 +94,7 @@ export default class QueryRow {
 		const request = KnexInstance.get()(data.name).count('*')
 
 		return this.buildWhere(request, whereObject, data.name)
-			.then((count: number) => count)
+			.then(([count]: Array<any>) => count['count(*)'])
 			.catch(QueryRow.getLogger(data.name).catch('ESQL-C'))
 	}
 
@@ -106,7 +106,7 @@ export default class QueryRow {
         return new this()
     }
 
-    private static hydrate(data: Array<any>, forceArray: boolean = false): Array<any> | any | void {
+    protected static hydrate(data: Array<any>, forceArray: boolean = false): Array<any> | any | void {
         if (data.length === 0 && !forceArray) return
         if (data.length === 0 && forceArray) return []
         if (data.length === 1 && !forceArray) return this.new().hydrate(data[0])
@@ -153,7 +153,7 @@ export default class QueryRow {
             .catch(QueryRow.getLogger(data.name).catch('ESQL-D'))
     }
 
-    private hydrate(hydrateData: Record<string, any>): this {
+    protected hydrate(hydrateData: Record<string, any>): this {
         const { name, joins, hydrate }: Required<TableData> = Reflect.getMetadata('table:data', this.constructor)
         Object.keys(joins.length > 0 ? hydrateData[name] : hydrateData).forEach(key => {
             const hydrateOptions = hydrate ? hydrate[key] : undefined
