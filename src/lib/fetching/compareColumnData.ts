@@ -37,6 +37,8 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 
 		if (key === 'default_value' && obj2.data_type === 'text') return
 
+		if (key === 'default_value' && type === 'mysql' && obj2[key as keyof ColumnData] === null && obj1[key as keyof ColumnData] === 'NOW' && obj2.data_type === 'timestamp') return
+
 		result[key] = {
 			newValue: obj2[key as keyof ColumnData],
 			type: 'modified'
@@ -45,6 +47,8 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 
 	deletedKeys.forEach(key => {
 		if (key === 'collation') return
+
+		if (key === 'onUpdate' && type === 'mysql' && obj1[key as keyof ColumnData] === 'RESTRICT' && obj2.data_type === 'integer') return
 
 		result[key] = {
 			newValue: null,
