@@ -43,6 +43,7 @@ function getChangeType(diff: TableDiff): Array<ChangeType> {
 				break
 			}
 
+			case 'deleted':
 			case 'modified': {
 				changes.push(ChangeType.COLUMN_MODIFICATION)
 				break
