@@ -2,7 +2,7 @@ export type ColumnData = {
 	name: string;
 	table: string;
 	data_type: string;
-	default_value: string | number | null;
+	default_value: string | number | boolean | null;
 	max_length: number | null;
 	numeric_precision: number | null;
 	numeric_scale: number | null;

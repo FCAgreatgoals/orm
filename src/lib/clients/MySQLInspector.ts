@@ -294,6 +294,7 @@ export default class MySQLInspector extends Inspector {
 		const columnData: Array<ColumnData> = []
 		columns.forEach(async (column: RawSQLResult) => {
 			const comment: string | undefined = column.COLUMN_COMMENT || undefined
+
 			columnData.push({
 				name: column.COLUMN_NAME,
 				table: column.TABLE_NAME,
@@ -309,18 +310,30 @@ export default class MySQLInspector extends Inspector {
 				has_auto_increment: column.EXTRA === 'auto_increment',
 				...comment && { comment },
 			})
+
 			if (column.COLUMN_DEFAULT !== null && isInt(column.COLUMN_TYPE))
 				columnData[columnData.length - 1].default_value = parseInt(column.COLUMN_DEFAULT)
+
 			if (column.COLUMN_TYPE.startsWith('enum'))
 				columnData[columnData.length - 1].enum_values = this.parseEnum(column.COLUMN_TYPE)
+
 			if (column.COLUMN_TYPE.includes('varchar'))
 				columnData[columnData.length - 1].data_type = knexTypes[column.COLUMN_TYPE.replace(/\(\d+\)/g, '') as keyof typeof knexTypes] || column.COLUMN_TYPE.replace(/\(\d+\)/g, '')
+
 			if (column.COLUMN_TYPE.match(/int\(\d+\)(?: unsigned)?/))
 				columnData[columnData.length - 1].data_type = 'integer'
-			if (column.COLUMN_TYPE === 'tinyint(1)')
+
+			if (column.COLUMN_TYPE === 'tinyint(1)') {
 				columnData[columnData.length - 1].data_type = 'boolean'
+
+				if (columnData[columnData.length - 1].default_value !== null) {
+					columnData[columnData.length - 1].default_value = columnData[columnData.length - 1].default_value === '1'
+				}
+			}
+
 			if (['date', 'timestamp', 'datetime', 'time'].includes(column.COLUMN_TYPE) && ['CURRENT_TIMESTAMP', 'curdate()'].includes(column.COLUMN_DEFAULT))
 				columnData[columnData.length - 1].default_value = 'NOW'
+
 			if (this.knex.client.constructor.name === 'Client_MySQL') {
 				const collation: SQLResult = await this.knex.select('COLLATION_NAME').from('INFORMATION_SCHEMA.COLUMNS').where({
 					'TABLE_SCHEMA': this.knex.client.database(),
