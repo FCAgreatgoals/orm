@@ -27,7 +27,7 @@ function extractColumnData(content: Array<string>, lineIndex: number, hydratedPr
 
 	/* eslint-disable */
 	const isHydrated: boolean = lineIndex > 0 && prevLine.match(/@Transform.(?:De)?Hydrate\('\w+',/) !== null
-	const data: RegExpMatchArray | null = line.match(/private (\w+)!?: ([\w\.]+|(?:'\w+'(?: \| )?)*)/)
+	const data: RegExpMatchArray | null = line.match(/private (\w+)!?: ([\w\.]+(?: \| [\w\.]+)*)/)
 	if (!data) return null
 	/* eslint-enable */
 

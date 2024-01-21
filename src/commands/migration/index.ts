@@ -36,10 +36,25 @@ export default class Generate extends Command {
 	static args = {}
 
 	static flags = {
-		project: Flags.directory({ char: 'p', description: 'Project directory', required: false, default: `${process.cwd()}/src` }),
-		runMigration: Flags.boolean({ aliases: ['rm'], description: 'Automatically run the migration files without prompting' }),
-		authorizeDeletion: Flags.boolean({ aliases: ['ad'], description: 'Automatically authorize deletion of tables without prompting' }),
-		table: Flags.string({ char: 't', description: 'Generate a migration for a specific queryrow', required: false }),
+		project: Flags.directory({
+			char: 'p',
+			description: 'Project directory',
+			required: false,
+			default: `${process.cwd()}/src`
+		}),
+		runMigration: Flags.boolean({
+			aliases: [ 'rm' ],
+			description: 'Automatically run the migration files without prompting'
+		}),
+		authorizeDeletion: Flags.boolean({
+			aliases: [ 'ad' ],
+			description: 'Automatically authorize deletion of tables without prompting'
+		}),
+		table: Flags.string({
+			char: 't',
+			description: 'Generate a migration for a specific queryrow',
+			required: false
+		}),
 	}
 
 	async run(): Promise<void> {
@@ -51,11 +66,16 @@ export default class Generate extends Command {
 		if (process.env.ORM_AUTO_BUILD !== 'false') {
 			this.log('Building TS files...')
 			await execAsync(process.env.ORM_CMD_BUILD || 'tsc', this)
-				.catch(() => { this.error('Building failed ! Please check your compilation trace before migrating') })
+				.catch(() => {
+					this.error('Building failed ! Please check your compilation trace before migrating')
+				})
 		}
 
 		let newSchema: DatabaseSchema = await fetchQueryRows(flags, this).catch((err: Error) => this.error(err.message))
-		const oldSchema: { schema: DatabaseSchema, type: ClientType } = await databaseConnectionHandle(this).catch((err: Error) => this.error(err.message))
+		const oldSchema: {
+			schema: DatabaseSchema,
+			type: ClientType
+		} = await databaseConnectionHandle(this).catch((err: Error) => this.error(err.message))
 
 		if (flags.table) {
 			newSchema = newSchema.filter((table) => table.name === flags.table)
@@ -73,7 +93,7 @@ export default class Generate extends Command {
 					type: 'select',
 					name: 'confirmation',
 					message: `The following tables will be deleted:\n${deletedTables.map((table) => `- ${table.name}`).join('\n')}\nDo you want to continue?`,
-					choices: [{ title: 'Yes', selected: true, value: true }, {title: 'No', value: false }]
+					choices: [ { title: 'Yes', selected: true, value: true }, { title: 'No', value: false } ]
 				})
 			if (!prompt.confirmation)
 				return
@@ -98,7 +118,7 @@ export default class Generate extends Command {
 					type: 'select',
 					name: 'confirmation',
 					message: 'Do you want to run "knex migrate:latest" now?',
-					choices: [{ title: 'Yes', selected: true, value: true }, {title: 'No', value: false }]
+					choices: [ { title: 'Yes', selected: true, value: true }, { title: 'No', value: false } ]
 				})
 			if (!prompt.confirmation)
 				return
