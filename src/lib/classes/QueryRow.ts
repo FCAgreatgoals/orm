@@ -45,6 +45,11 @@ export default class QueryRow {
                 const operator = Array.isArray(data) ? data[0] : '='
                 const value = Array.isArray(data) ? (data[1] || null) : data
 
+				if (value === null) {
+					builder.whereRaw(`${mainTable}.${column} ${operator}`)
+					return
+				}
+
                 builder.where(column === 'id' ? `${mainTable}.${column}` : column, operator, value)
             })
         })
