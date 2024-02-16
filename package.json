@@ -1,6 +1,6 @@
 {
 	"name": "@fca.gg/orm",
-	"version": "1.1.4",
+	"version": "1.1.5",
 	"description": "ORM Library for Node.js",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
