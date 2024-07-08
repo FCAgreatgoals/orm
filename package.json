@@ -1,12 +1,13 @@
 {
 	"name": "@fca.gg/orm",
-	"version": "1.1.5",
+	"version": "1.1.6",
 	"description": "ORM Library for Node.js",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"scripts": {
 		"compile": "npm run build && npm run build_templates",
 		"build": "rm -rf lib && tsc -b",
+		"dev": "mkdir -p ./node_modules/@fca.gg && mkdir -p ./node_modules/@fca.gg/orm && cp ./package.json ./node_modules/@fca.gg/orm/package.json && cp -r ./bin ./node_modules/@fca.gg/orm && cp -r ./lib ./node_modules/@fca.gg/orm && cd ./node_modules/@fca.gg/orm && npm i",
 		"lint": "eslint . --ext .ts --config .eslintrc",
 		"build_templates": "mkdir -p ./lib/templates && cp -r ./src/templates ./lib"
 	},
@@ -17,9 +18,9 @@
 		"dotenv": "^16.3.1",
 		"ejs": "^3.1.9",
 		"get-installed-path": "^4.0.8",
-		"knex": "^2.5.1",
+		"knex": "^3.1.0",
 		"mysql": "^2.18.1",
-		"pg": "^8.11.3",
+		"pg": "^8.12.0",
 		"prompts": "^2.4.2",
 		"reflect-metadata": "^0.1.13"
 	},
@@ -39,7 +40,7 @@
 		"shx": "^0.3.3",
 		"ts-node": "^10.9.1",
 		"tslib": "^2.6.2",
-		"typescript": "^4.9.5"
+		"typescript": "^5.5.3"
 	},
 	"bin": {
 		"orm": "./bin/run"
