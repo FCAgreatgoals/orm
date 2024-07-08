@@ -13,7 +13,8 @@ export default function KnexInspector(database: Knex): Inspector | null {
 		}
 
 		case 'Client_PG':
-		case 'postgresql': {
+		case 'postgresql':
+		case 'pg': {
 			return new PostgreInspector(database)
 		}
 
