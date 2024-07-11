@@ -1,56 +1,81 @@
 import 'reflect-metadata'
-import { knexTypes } from '../classes/KnexMigrationBuilder'
+import { knexTypes, postgreKnexTypes } from '../classes/KnexMigrationBuilder'
 import { TableData } from './Table'
 import { Knex } from 'knex'
 import Value = Knex.Value
 import EnumOptions = Knex.EnumOptions
 import generateEmptyColumn from '../fetching/generateEmptyColumn'
 import { DecoratorFunction } from '../types/Decorator'
+import { fetchKnexConfig } from '../../utils/files/knexConfig'
 
 export default class Column {
 
     private static createDecorator(type: string, ...args: Array<any>) {
-        return (target: any, propertyKey: string) => {
+        return async (target: any, propertyKey: string) => {
+            const cfg = await fetchKnexConfig()
 			const data: TableData = Reflect.getMetadata('table:data', target.constructor) || {}
 			const columns = data.columns || {}
 			if (!columns[propertyKey]) columns[propertyKey] = generateEmptyColumn(propertyKey)
 
-			columns[propertyKey].data_type = knexTypes[type as keyof typeof knexTypes]
+			columns[propertyKey].data_type = ['pg', 'postgresql'].includes(cfg.client) ? postgreKnexTypes[type as keyof typeof postgreKnexTypes] : knexTypes[type as keyof typeof knexTypes]
 
 			switch (type) {
 
 				case 'increment': {
 					columns[propertyKey].has_auto_increment = true
-					columns[propertyKey].numeric_scale = 0
-					columns[propertyKey].is_unsigned = true
+                    columns[propertyKey].numeric_scale = 0
+                    columns[propertyKey].is_nullable = false
 					columns[propertyKey].data_type = 'integer'
 					if (args[0]?.primaryKey) columns[propertyKey].is_primary_key = args[0].primaryKey
 					break
 				}
 
 				case 'integer':
-				case 'tinyint':
-				case 'binary': {
+                case 'tinyint':
+                case 'smallint':
+                case 'mediumint': {
 					columns[propertyKey].numeric_scale = 0
 					if (args[0])
 						columns[propertyKey].max_length = args[0]
 					break
-				}
+                }
+                    
+                case 'binary': {
+					if (args[0])
+						columns[propertyKey].max_length = args[0]
+					break
+                }
 
 				case 'varchar': {
 					if (args[0])
 						columns[propertyKey].max_length = args[0]
 					else columns[propertyKey].max_length = 255
 					break
-				}
+                }
+                    
+                case 'bigint': {
+                    columns[propertyKey].numeric_scale = 0
+                    columns[propertyKey].numeric_precision = 64
+                    break
+                }
 
-				case 'float':
-				case 'double':
-				case 'decimal': {
-					columns[propertyKey].numeric_precision = args[0]
-					columns[propertyKey].numeric_scale = args[1]
+				case 'float': {
+					columns[propertyKey].numeric_precision = args[0] ?? 24
+					columns[propertyKey].numeric_scale = args[1] ?? null
 					break
-				}
+                }
+                    
+                case 'double': {
+					columns[propertyKey].numeric_precision = args[0] ?? 53
+					columns[propertyKey].numeric_scale = args[1] ?? null
+					break
+                }
+                    
+                case 'decimal': {
+                    columns[propertyKey].numeric_precision = args[0] ?? 8
+                    columns[propertyKey].numeric_scale = args[1] ?? 2
+                    break
+                }
 
 				case 'datetime':
 				case 'timestamp': {
@@ -141,14 +166,6 @@ export default class Column {
 
     public static Timestamp(options?: Readonly<{ useTz?: boolean; precision?: number }>): DecoratorFunction {
         return Column.createDecorator('timestamp', options)
-    }
-
-    public static Geometry(): DecoratorFunction {
-        return Column.createDecorator('geometry')
-    }
-
-    public static Geography(): DecoratorFunction {
-        return Column.createDecorator('geography')
     }
 
     public static Point(): DecoratorFunction {
