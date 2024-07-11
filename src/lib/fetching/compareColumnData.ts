@@ -9,7 +9,7 @@ export default function compareColumnData(obj1: Partial<ColumnData>, obj2: Colum
 	const addedKeys: Array<string> = keys2.filter(key => !keys1.includes(key))
 	const modifiedKeys: Array<string> = keys2.filter(key => keys1.includes(key) &&
 		obj1[key as keyof ColumnData] !== obj2[key as keyof ColumnData] &&
-		(key !== 'enum_values' || JSON.stringify(obj1[key as keyof ColumnData]) !== JSON.stringify(obj2[key as keyof ColumnData])))
+		((key !== 'enum_values' && key !== 'checkIn') || JSON.stringify(obj1[key as keyof ColumnData]) !== JSON.stringify(obj2[key as keyof ColumnData])))
 	const deletedKeys: Array<string> = keys1.filter(key => !keys2.includes(key))
 
 	if (addedKeys.length + modifiedKeys.length + deletedKeys.length === 0)
