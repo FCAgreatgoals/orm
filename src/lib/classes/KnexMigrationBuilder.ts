@@ -23,6 +23,8 @@ export const knexTypes = {
 	'tinyint': 'tinyint',
 	'mediumint unsigned': 'mediumint',
 	'mediumint': 'mediumint',
+	'smallint': 'smallint',
+	'point': 'point',
 	'float': 'float',
 	'double': 'double',
 	'decimal': 'decimal',
@@ -43,6 +45,20 @@ export const knexTypes = {
 	'jsonb': 'jsonb',
 	'uuid': 'uuid',
 	'enum': 'enum',
+}
+
+export const postgreKnexTypes = {
+	...knexTypes,
+	'real': 'float',
+	'bytea': 'binary',
+	'double precision': 'double',
+	'numeric': 'decimal',
+	'mediumint': 'integer',
+	'mediumint unsigned': 'integer',
+	'tinyint': 'smallint',
+	'tinyint unsigned': 'smallint',
+	'bigint': 'bigint',
+	'bigint unsigned': 'bigint',
 }
 
 export type KnexMigration = {
@@ -71,7 +87,7 @@ export default class KnexMigrationBuilder {
 	}
 
 	private generateColumnInitializer(column: ColumnData): string {
-		let string: string = `${(column.has_auto_increment) ? 'increments' : column.data_type}('${column.name}'`
+		let string: string = `${(column.has_auto_increment) ? 'increments' : column.data_type}('${column.name}'${(column.has_auto_increment && !column.is_primary_key) ? ', { primaryKey: false }' : ''}`
 
 		if (['string', 'integer', 'tinyint', 'binary'].includes(column.data_type as never) && column.max_length && !(column.data_type === 'string' && column.max_length === 255)) {
 			string += `, ${column.max_length}`
@@ -210,6 +226,8 @@ export default class KnexMigrationBuilder {
 		for (const column in table?.columns) {
 			const columnDiff: DiffResult = table?.columns[column]
 			const columnData = this.schema.find(table => table.name === tableName)?.columns.find(columnData => columnData.name === column) as ColumnData
+
+			columnData.table = tableName
 
 			lines.push(this.generateColumnInstructions(columnDiff, columnData))
 
