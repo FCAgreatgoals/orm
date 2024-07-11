@@ -3,7 +3,7 @@ import { Table } from '../types/Table'
 import { ColumnData } from '../types/Column'
 import { RawSQLResult, SQLResult } from '../types/SQLResult'
 import Inspector, { ClientType } from './Inspector'
-import { knexTypes } from '../classes/KnexMigrationBuilder'
+import { postgreKnexTypes } from '../classes/KnexMigrationBuilder'
 
 function isInt(type: string): boolean {
 	return type.includes('int') || type.includes('bigint') || type.includes('tinyint') || type.includes('mediumint')
@@ -256,22 +256,57 @@ export default class PostgreInspector extends Inspector {
 			'table_name': table,
 		})
 
+		const query_constraint: Promise<SQLResult> = this.knex
+			.select(
+				'tc.constraint_name',
+				'tc.constraint_type',
+				'kcu.column_name',
+				this.knex.raw('ccu.table_name AS foreign_table_name'),
+				this.knex.raw('ccu.column_name AS foreign_column_name'),
+				'cc.check_clause'
+			)
+			.from('information_schema.table_constraints as tc')
+			.leftJoin('information_schema.key_column_usage as kcu',
+				function () {
+					this.on('tc.constraint_name', '=', 'kcu.constraint_name')
+						.andOn('tc.table_schema', '=', 'kcu.table_schema')
+				}
+			)
+			.leftJoin('information_schema.constraint_column_usage as ccu',
+				function () {
+					this.on('tc.constraint_name', '=', 'ccu.constraint_name')
+						.andOn('tc.table_schema', '=', 'ccu.table_schema')
+				}
+			)
+			.leftJoin('information_schema.check_constraints as cc',
+				function () {
+					this.on('tc.constraint_name', '=', 'cc.constraint_name')
+						.andOn('tc.table_schema', '=', 'cc.constraint_schema')
+				}
+			)
+			.where({
+				'tc.table_schema': 'public',
+				'tc.table_name': table,
+			})
+
 		const columns: SQLResult = await query.catch((err: Error) => { throw err })
+		const columns_constraint: SQLResult = await query_constraint.catch((err: Error) => { throw err })
 
 		const columnData: Array<ColumnData> = []
 		columns.forEach(async (column: RawSQLResult) => {
+			const constraints = columns_constraint.filter(c => c.column_name === column.column_name)
 			columnData.push({
 				name: column.column_name,
 				table: column.table_name,
-				data_type: (column.data_type === 'USER-DEFINED' ? 'enum' : knexTypes[column.data_type as keyof typeof knexTypes]),
+				data_type: (column.data_type === 'USER-DEFINED' ? 'enum' : postgreKnexTypes[column.data_type as keyof typeof postgreKnexTypes]),
 				default_value: column.column_default?.replace(/::[\w\s]+/, '').replace(/[``]/g, '').replace(/'/g, '') || null,
 				max_length: column.character_maximum_length,
 				is_unsigned: false,
 				numeric_precision: column.numeric_precision,
 				numeric_scale: column.numeric_scale,
 				is_nullable: column.is_nullable === 'YES',
-				is_unique: false,
-				is_primary_key: false,
+				is_unique: !!constraints.find(c => c.constraint_type === 'UNIQUE'),
+				is_primary_key: !!constraints.find(c => c.constraint_type === 'PRIMARY KEY'),
 				has_auto_increment: column.column_default?.includes('nextval') || false,
 			})
 
