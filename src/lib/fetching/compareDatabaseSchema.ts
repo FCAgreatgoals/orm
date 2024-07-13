@@ -61,7 +61,9 @@ export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: 
 	const result: SchemaDiff = []
 	for (const table in schema1) {
 		const table1: TableSchema = schema1[table]
-		const table2: TableSchema | undefined = schema2.find(tableData => tableData.name === table1.name)
+		const table2: TableSchema | undefined = schema2
+			.find(tableData => tableData.name === table1.name)
+	
 		const tableDiff: TableDiff = { name: table1.name, columns: {}, deletedColumns: [], type: 'modified' }
 		if (!table2) {
 			tableDiff.type = 'deleted'
@@ -70,6 +72,12 @@ export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: 
 			continue
 		}
 
+		table2.columns.forEach((v, i) => {
+			if (v.checkNumeral && v.checkNumeral.startsWith('!= ')) v.checkNumeral = v.checkNumeral.replace('!= ', '<> ')
+
+			table2.columns[i] = { ...v, table: table1.name }
+		})
+
 		checkAllColumns(schema1, schema2, table1.name, tableDiff, type)
 
 		if (JSON.stringify(table2.uniqueColumns) !== JSON.stringify(table1?.uniqueColumns))
@@ -77,6 +85,7 @@ export default function compareDatabaseSchema(schema1: DatabaseSchema, schema2: 
 		if (Object.keys(tableDiff.columns).length > 0 || tableDiff.deletedColumns.length > 0)
 			result.push(tableDiff)
 	}
+
 	checkAddedTables(schema1, schema2, result, type)
 	return result
 }
