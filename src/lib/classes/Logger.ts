@@ -1,4 +1,4 @@
-import * as chalk from 'chalk'
+import { red, yellow, green, white, cyan } from 'chalk'
 
 function timestamp(): string {
 	const date = new Date()
@@ -9,11 +9,11 @@ export default class Logger {
 
     private readonly title: string
     private readonly colors = {
-        log: chalk.cyan,
-        info: chalk.white,
-        success: chalk.green,
-        warn: chalk.yellow,
-        error: chalk.red
+        log: cyan,
+        info: white,
+        success: green,
+        warn: yellow,
+        error: red
     }
     private readonly levels = {
         log: 'LOG',
