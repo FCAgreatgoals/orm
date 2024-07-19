@@ -1,13 +1,11 @@
 {
 	"name": "@fca.gg/orm",
-	"version": "1.1.6",
+	"version": "1.2.0",
 	"description": "ORM Library for Node.js",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"scripts": {
 		"compile": "npm run build && npm run build_templates",
-		"build": "rm -rf lib && tsc -b",
-		"dev": "mkdir -p ./node_modules/@fca.gg && mkdir -p ./node_modules/@fca.gg/orm && cp ./package.json ./node_modules/@fca.gg/orm/package.json && cp -r ./bin ./node_modules/@fca.gg/orm && cp -r ./lib ./node_modules/@fca.gg/orm && cd ./node_modules/@fca.gg/orm && npm i",
 		"lint": "eslint . --ext .ts --config .eslintrc",
 		"build_templates": "mkdir -p ./lib/templates && cp -r ./src/templates ./lib"
 	},

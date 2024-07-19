@@ -298,7 +298,7 @@ export default class MySQLInspector extends Inspector {
 			columnData.push({
 				name: column.COLUMN_NAME,
 				table: column.TABLE_NAME,
-				data_type: (column.COLUMN_TYPE.startsWith('enum') ? 'enum' : knexTypes[column.COLUMN_TYPE as keyof typeof knexTypes] || column.COLUMN_TYPE),
+				data_type: (column.COLUMN_TYPE.startsWith('enum') ? 'enum' : knexTypes[column.COLUMN_TYPE as keyof typeof knexTypes] || column.COLUMN_TYPE).split('(')[0],
 				is_unsigned: column.COLUMN_TYPE.includes('unsigned'),
 				default_value: column.COLUMN_DEFAULT,
 				max_length: column.CHARACTER_MAXIMUM_LENGTH,
