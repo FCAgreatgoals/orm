@@ -13,20 +13,26 @@ export default class Column {
     private static createDecorator(type: string, ...args: Array<any>) {
         return async (target: any, propertyKey: string) => {
             const cfg = await fetchKnexConfig()
+            const isPostgre = ['pg', 'postgresql'].includes(cfg.client)
+
 			const data: TableData = Reflect.getMetadata('table:data', target.constructor) || {}
-			const columns = data.columns || {}
+            const columns = data.columns || {}
+
 			if (!columns[propertyKey]) columns[propertyKey] = generateEmptyColumn(propertyKey)
 
-			columns[propertyKey].data_type = ['pg', 'postgresql'].includes(cfg.client) ? postgreKnexTypes[type as keyof typeof postgreKnexTypes] : knexTypes[type as keyof typeof knexTypes]
+            columns[propertyKey].data_type = isPostgre ? postgreKnexTypes[type as keyof typeof postgreKnexTypes] : knexTypes[type as keyof typeof knexTypes]
 
 			switch (type) {
 
-				case 'increment': {
+                case 'increment': {
+                    if (!isPostgre && columns[propertyKey].name !== 'id') {
+                        throw new Error('Cannot create another `increment` column in MySQL.')
+                    }
 					columns[propertyKey].has_auto_increment = true
                     columns[propertyKey].numeric_scale = 0
                     columns[propertyKey].is_nullable = false
 					columns[propertyKey].data_type = 'integer'
-					if (args[0]?.primaryKey) columns[propertyKey].is_primary_key = args[0].primaryKey
+                    if (args[0]?.primaryKey) columns[propertyKey].is_primary_key = args[0].primaryKey
 					break
 				}
 
@@ -39,7 +45,7 @@ export default class Column {
 						columns[propertyKey].max_length = args[0]
 					break
                 }
-                    
+
                 case 'binary': {
 					if (args[0])
 						columns[propertyKey].max_length = args[0]
@@ -52,25 +58,25 @@ export default class Column {
 					else columns[propertyKey].max_length = 255
 					break
                 }
-                    
+
                 case 'bigint': {
                     columns[propertyKey].numeric_scale = 0
-                    columns[propertyKey].numeric_precision = 64
+                    columns[propertyKey].numeric_precision = isPostgre ? 64 : 19
                     break
                 }
 
 				case 'float': {
-					columns[propertyKey].numeric_precision = args[0] ?? 24
-					columns[propertyKey].numeric_scale = args[1] ?? null
+                    columns[propertyKey].numeric_precision = args[0] ?? isPostgre ? 24 : 8
+					columns[propertyKey].numeric_scale = args[1] ?? isPostgre ? null : 2
 					break
                 }
-                    
+
                 case 'double': {
-					columns[propertyKey].numeric_precision = args[0] ?? 53
-					columns[propertyKey].numeric_scale = args[1] ?? null
+					columns[propertyKey].numeric_precision = args[0] ?? isPostgre ? 53 : 22
+					columns[propertyKey].numeric_scale = args[1] ?? isPostgre ? null : 2
 					break
                 }
-                    
+
                 case 'decimal': {
                     columns[propertyKey].numeric_precision = args[0] ?? 8
                     columns[propertyKey].numeric_scale = args[1] ?? 2
@@ -92,11 +98,11 @@ export default class Column {
 				case 'uuid': {
 					if (args[0]?.useBinaryUuid) columns[propertyKey].binaryUuid = args[0].useBinaryUuid
 					if (args[0]?.primaryKey) columns[propertyKey].is_primary_key = args[0].primaryKey
-				}
+                }
 
-			}
+            }
 
-			Reflect.defineMetadata('table:data', {...data, columns}, target.constructor)
+            Reflect.defineMetadata('table:data', { ...data, columns }, target.constructor)
         }
     }
 
