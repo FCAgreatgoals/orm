@@ -40,10 +40,12 @@ export const knexTypes = {
 	'time without time zone': 'time',
 	'timestamp with time zone': 'timestamp',
 	'timestamp without time zone': 'timestamp',
-	'binary': 'binary',
 	'json': 'json',
-	'jsonb': 'jsonb',
+	'jsonb': 'json',
+	'binary': 'binary',
+	'blob': 'binary',
 	'uuid': 'uuid',
+	'char(36)': 'uuid',
 	'enum': 'enum',
 }
 
@@ -58,6 +60,7 @@ export const postgreKnexTypes = {
 	'tinyint': 'smallint',
 	'tinyint unsigned': 'smallint',
 	'bigint': 'bigint',
+	'jsonb': 'jsonb',
 	'bigint unsigned': 'bigint',
 }
 
