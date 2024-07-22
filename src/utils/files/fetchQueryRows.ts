@@ -44,6 +44,9 @@ export default async function fetchQueryRows(flags: Record<string, string>, ctx:
 		})
 		if (queryrow.default === undefined)
 			ctx.error(`The file ${file} does not have a default export`)
+		
+		await (new Promise((resolve) => setTimeout(resolve, 200)))
+
 		tables.push(translateTable(Reflect.getMetadata('table:data', queryrow.default.default as any)))
 	}
 
