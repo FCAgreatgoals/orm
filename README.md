@@ -22,22 +22,36 @@ npm install @fca.gg/orm
 
 ### 1. Database Configuration
 
-Create a knex configuration file or set up your database connection:
+Create a `knexfile.js` in your project root:
 
-```typescript
-import { KnexInstance } from '@fca.gg/orm'
-
-const config = {
+```javascript
+// knexfile.js
+module.exports = {
   client: 'mysql2', // or 'pg' for PostgreSQL
   connection: {
     host: 'localhost',
     user: 'username',
     password: 'password',
     database: 'database_name'
+  },
+  pool: {
+    min: 2,
+    max: 10
+  },
+  migrations: {
+    tableName: 'knex_migrations',
+    directory: './migrations'
   }
 }
+```
 
-KnexInstance.init(config)
+Then initialize the ORM in your application:
+
+```typescript
+import { KnexInstance } from '@fca.gg/orm'
+
+// Initialize the ORM (reads from knexfile.js automatically)
+KnexInstance.init()
 ```
 
 ### 2. Define Entity Models
