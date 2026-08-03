@@ -297,7 +297,13 @@ await KnexInstance.transaction(async (trx) => {
 
 ## License
 
-This project is licensed under the AGPL v3 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **AGPL-3.0** with a Linking Exception — see the [LICENSE](LICENSE) file for the full license text.
 
 > We chose the AGPL to ensure that `@fca.gg/orm` remains truly open source and contributive.
-If you use or adapt `@fca.gg/orm`, even over a network, you must share your modifications. That’s the spirit of the project — building useful tools together, in the open.
+> If you fork or modify `@fca.gg/orm` itself — even to run it over a network — you must share your modifications. That's the spirit of the project: building useful tools together, in the open.
+
+### Linking Exception
+
+If you simply use `@fca.gg/orm` as a dependency in your own project (e.g. `npm install @fca.gg/orm`), your application is **not** required to be open source. Only modifications to `@fca.gg/orm` itself are subject to the AGPL.
+
+See [LINKING_EXCEPTION.md](LINKING_EXCEPTION.md) for the full exception text.
